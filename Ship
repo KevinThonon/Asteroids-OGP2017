@@ -67,10 +67,10 @@ public class Ship {
 		this.orientation = orientation;
 	}
 	
-	public void turn(double orientation, double changeInOrientation){
-		assert(isValidOrientation(orientation));
+	public void turn(double changeInOrientation){
+		assert(isValidOrientation(this.orientation));
 		assert(isValidOrientation(changeInOrientation));
-		newTemporaryOrientation = (orientation + changeInOrientation);
+		newTemporaryOrientation = (this.orientation + changeInOrientation);
 		if (newTemporaryOrientation < 0) 
 			this.orientation = newTemporaryOrientation + 2*Math.PI;
 		if (newTemporaryOrientation > 2*Math.PI)
@@ -86,9 +86,44 @@ public class Ship {
 	}
 	
 	public void setRadius(double radius) throws IllegalArgumentException{
-		if ((radius < Double.NEGATIVE_INFINITY) || (radius > Double.POSITIVE_INFINITY)) 
+		if ((radius < 10000) || (radius > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
 		this.radius = radius;
 	}
-
-}
+	
+	public boolean isValidShip(Ship ship) throws IllegalArgumentException{
+		if (((ship.xPosition) < Double.NEGATIVE_INFINITY) || ((ship.xPosition) > Double.POSITIVE_INFINITY))
+			throw new IllegalArgumentException();
+		if (((ship.yPosition) < Double.NEGATIVE_INFINITY) || ((ship.yPosition) > Double.POSITIVE_INFINITY))
+			throw new IllegalArgumentException();
+		if (((ship.radius) < 10000) || ((ship.radius) > Double.POSITIVE_INFINITY))
+			throw new IllegalArgumentException();
+		if (((ship.orientation) < 0) || ((ship.orientation) > 2*Math.PI))
+			throw new IllegalArgumentException();
+		else
+			return true;
+	}
+	
+	public double getDistanceBetween(Ship ship1, Ship ship2) throws IllegalArgumentException{
+		if (isValidShip(ship1) == false)
+			throw new IllegalArgumentException();
+		if (isValidShip(ship2) == false)
+			throw new IllegalArgumentException();
+		return Math.sqrt(Math.pow(ship1.xPosition - ship2.xPosition, 2) + Math.pow(ship1.yPosition - ship2.yPosition, 2)) - ship1.radius - ship2.radius; 
+	}
+	
+	public boolean overlap(Ship ship1, Ship ship2) throws IllegalArgumentException{
+		if (isValidShip(ship1) == false)
+			throw new IllegalArgumentException();
+		if (isValidShip(ship2) == false)
+			throw new IllegalArgumentException();
+		if (ship1 == ship2)
+			return true;
+		else 
+			if (getDistanceBetween(ship1, ship2) < 0)
+				return true;
+			else 
+				return false;
+	}
+	
+	
