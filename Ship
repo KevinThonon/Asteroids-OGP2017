@@ -15,6 +15,7 @@ public class Ship {
 	private double ySpeed;
 	private double orientation;
 	private double radius;
+	private final static int MaxSpeed = 300 000;
 	
 	public double[] getPosition(){
 		return this.position;
