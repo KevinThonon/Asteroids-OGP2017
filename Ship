@@ -1,0 +1,34 @@
+package asteroids.facade;
+
+public class Ship {
+	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
+			double orientation, double radius) throws IllegalArgumentException {
+		this.setPosition(new double[] {xPosition,yPosition});
+		this.setVelocity(new double[] {xVelocity,yVelocity});
+		this.setOrientation(orientation);
+		this.setRadius(radius);
+	}
+	
+	private double xPosition;
+	private double yPosition;
+	private double xSpeed;
+	private double ySpeed;
+	private double orientation;
+	private double radius;
+	
+	public double[] getPosition(){
+		return this.position;
+	}
+	
+	public void setPosition(double xPosition, double yPosition) throws IllegalArgumentException{
+		if ((double xPosition < Double.NEGATIVE_INFINITY) || (double xPosition > Double.POSITIVE_INFINITY) 
+				|| (double yPosition < Double.NEGATIVE_INFINITY) || (double yPosition > Double.POSITIVE_INFINITY)) 
+			throw new IllegalArgumentException;
+		if position.length != 2 throw new IllegalArgumentException;
+		this.position = double[xPosition,yPosition];
+	}
+	
+	private double[] position = new double[2];
+
+
+}
