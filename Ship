@@ -29,6 +29,28 @@ public class Ship {
 	}
 	
 	private double[] position = new double[2];
-
+	
+	public double getXspeed(){
+		return this.xSpeed;
+	}
+	
+	public void setXspeed(double xspeed) {
+		if (Math.sqrt(Math.pow( xspeed , 2) + Math.pow(getYspeed(), 2) )  < MaxSpeed)
+			this.xSpeed = xspeed;
+		else
+			this.xSpeed = Math.sqrt(Math.pow(MaxSpeed,2) - Math.pow(getYspeed(), 2));		
+	}
+	
+	public double getYspeed(){
+		return this.ySpeed;
+	}
+	
+	public void setYspeed(double yspeed) {
+		if (Math.sqrt(Math.pow( yspeed , 2) + Math.pow(getXspeed(), 2) )  < MaxSpeed)
+			this.ySpeed = yspeed;
+		else
+			this.ySpeed = Math.sqrt(Math.pow(MaxSpeed,2) - Math.pow(getXspeed(), 2));
+	}
+	
 
 }
