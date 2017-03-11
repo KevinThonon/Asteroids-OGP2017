@@ -4,7 +4,7 @@ public class Ship {
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
 			double orientation, double radius) throws IllegalArgumentException {
 		this.setPosition(new double[] {xPosition,yPosition});
-		this.setSpeed(new double[] {xSpeed,ySpeed});
+		this.setVelocity(new double[] {xVelocity,yVelocity});
 		this.setOrientation(orientation);
 		this.setRadius(radius);
 	}
@@ -20,36 +20,32 @@ public class Ship {
 		return this.position;
 	}
 	
-	public void setPosition(double[] position) throws IllegalArgumentException{
+	public void setPosition(double xPosition, double yPosition) throws IllegalArgumentException{
 		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
 				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
 		if (position.length != 2) throw new IllegalArgumentException();
-		this.position = position;
+		this.position = [xPosition,yPosition];
 	}
 	
 	private double[] position = new double[2];
 	
-	public double getXspeed(){
-		return this.xSpeed;
+	private double[] speed = new double[2];
+	
+	public double[] getSpeed(){
+		return this.speed;
 	}
 	
-	public void setXspeed(double xspeed) {
-		if (Math.sqrt(Math.pow( xspeed , 2) + Math.pow(getYspeed(), 2) )  < MaxSpeed)
-			this.xSpeed = xspeed;
+	private double reducer;
+	
+	public void setSpeed (double[] speed) {
+		if (Math.sqrt(Math.pow( xSpeed , 2) + Math.pow(ySpeed, 2) )  < MaxSpeed)
+			this.speed = speed;
 		else
-			this.xSpeed = Math.sqrt(Math.pow(MaxSpeed,2) - Math.pow(getYspeed(), 2));		
-	}
-	
-	public double getYspeed(){
-		return this.ySpeed;
-	}
-	
-	public void setYspeed(double yspeed) {
-		if (Math.sqrt(Math.pow( yspeed , 2) + Math.pow(getXspeed(), 2) ) <= MaxSpeed)
-			this.ySpeed = yspeed;
-		else
-			this.ySpeed = Math.sqrt(Math.pow(MaxSpeed,2) - Math.pow(getXspeed(), 2));
+			reducer = (Math.pow(xSpeed,2) + Math.pow(ySpeed, 2)) / MaxSpeed;
+			xSpeed /= reducer;
+			ySpeed /= reducer;
+			this.speed = speed;	
 	}
 	
 	private final static int MaxSpeed = 300000;
@@ -126,4 +122,14 @@ public class Ship {
 				return false;
 	}
 	
+	public boolean isValidDuration(double duration){
+		return duration >= 0;
+	}
 	
+	
+	public void move(double duration) throws IllegalArgumentException{
+		assert (isValidDuration(duration));
+		setPosition(this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration);
+	}
+}
+
