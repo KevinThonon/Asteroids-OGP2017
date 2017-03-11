@@ -15,18 +15,17 @@ public class Ship {
 	private double ySpeed;
 	private double orientation;
 	private double radius;
-	private final static int MaxSpeed = 300 000;
 	
 	public double[] getPosition(){
 		return this.position;
 	}
 	
 	public void setPosition(double xPosition, double yPosition) throws IllegalArgumentException{
-		if ((double xPosition < Double.NEGATIVE_INFINITY) || (double xPosition > Double.POSITIVE_INFINITY) 
-				|| (double yPosition < Double.NEGATIVE_INFINITY) || (double yPosition > Double.POSITIVE_INFINITY)) 
-			throw new IllegalArgumentException;
-		if position.length != 2 throw new IllegalArgumentException;
-		this.position = double[xPosition,yPosition];
+		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
+				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)) 
+			throw new IllegalArgumentException();
+		if (position.length != 2) throw new IllegalArgumentException();
+		this.position = [xPosition,yPosition];
 	}
 	
 	private double[] position = new double[2];
@@ -47,11 +46,49 @@ public class Ship {
 	}
 	
 	public void setYspeed(double yspeed) {
-		if (Math.sqrt(Math.pow( yspeed , 2) + Math.pow(getXspeed(), 2) )  =< MaxSpeed)
+		if (Math.sqrt(Math.pow( yspeed , 2) + Math.pow(getXspeed(), 2) ) <= MaxSpeed)
 			this.ySpeed = yspeed;
 		else
 			this.ySpeed = Math.sqrt(Math.pow(MaxSpeed,2) - Math.pow(getXspeed(), 2));
 	}
 	
+	private final static int MaxSpeed = 300000;
+	
+	public double getOrientation(){
+		return this.orientation;
+	}
+	
+	public boolean isValidOrientation(double orientation){
+		return ((orientation >=0) && (orientation < 2*Math.PI));
+	}
+	
+	public void setOrientation(double orientation) throws IllegalArgumentException{
+		assert(isValidOrientation(orientation));
+		this.orientation = orientation;
+	}
+	
+	public void turn(double orientation, double changeInOrientation){
+		assert(isValidOrientation(orientation));
+		assert(isValidOrientation(changeInOrientation));
+		newTemporaryOrientation = (orientation + changeInOrientation);
+		if (newTemporaryOrientation < 0) 
+			this.orientation = newTemporaryOrientation + 2*Math.PI;
+		if (newTemporaryOrientation > 2*Math.PI)
+			this.orientation = newTemporaryOrientation - 2*Math.PI;
+		else
+			this.orientation = newTemporaryOrientation;
+	}
+	
+	private double newTemporaryOrientation;
+	
+	public double getRadius(){
+		return this.radius;
+	}
+	
+	public void setRadius(double radius) throws IllegalArgumentException{
+		if ((radius < Double.NEGATIVE_INFINITY) || (radius > Double.POSITIVE_INFINITY)) 
+			throw new IllegalArgumentException();
+		this.radius = radius;
+	}
 
 }
