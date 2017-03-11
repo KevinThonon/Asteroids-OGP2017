@@ -4,7 +4,7 @@ public class Ship {
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
 			double orientation, double radius) throws IllegalArgumentException {
 		this.setPosition(new double[] {xPosition,yPosition});
-		this.setVelocity(new double[] {xVelocity,yVelocity});
+		this.setSpeed(new double[] {xSpeed,ySpeed});
 		this.setOrientation(orientation);
 		this.setRadius(radius);
 	}
@@ -20,12 +20,12 @@ public class Ship {
 		return this.position;
 	}
 	
-	public void setPosition(double xPosition, double yPosition) throws IllegalArgumentException{
+	public void setPosition(double[] position) throws IllegalArgumentException{
 		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
 				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
 		if (position.length != 2) throw new IllegalArgumentException();
-		this.position = [xPosition,yPosition];
+		this.position = position;
 	}
 	
 	private double[] position = new double[2];
