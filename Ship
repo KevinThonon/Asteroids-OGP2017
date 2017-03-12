@@ -1,6 +1,27 @@
-package asteroids.facade;
+package asteroids.model;
 
 public class Ship {
+	
+	/**Create a ship with a given position (x,y), given speed (vx,vy), 
+	 * given orientation and given radius. 
+	 * @param xPosition
+	 * 			The x-coordinate of the position of the new ship.
+	 * @param yPosition
+	 * 			The y-coordinate of the position of the new ship.			
+	 * @param xSpeed
+	 * 			The x-coordinate of the speed of the new ship.
+	 * @param ySpeed
+	 * 			The y-coordinate of the speed of the new ship.
+	 * @param orientation
+	 * 			The direction that the new ship is facing expressed as an angle in radians.
+	 * @param radius
+	 * 			The radius of the new ship.
+	 * @post  The given position is set as the new position of the new ship.
+	 * @post  The given speed is set as the new speed of the new ship.
+	 * @post  The given orientation is set as the new orientation of the new ship.
+	 * @post  The given radius is set as the new radius of the new ship.			
+	 * @throws IllegalArgumentException
+	 */
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
 			double orientation, double radius) throws IllegalArgumentException {
 		this.setPosition(new double[] {xPosition,yPosition});
@@ -16,11 +37,26 @@ public class Ship {
 	private double orientation;
 	private double radius;
 	
+	/**
+	 * It returns an array of length 2, at index 0 you find the x-coordinate 
+	 * and at index 1 you find the y-coordinate.
+	 * @return The position of the ship.
+	 */
 	public double[] getPosition(){
 		return this.position;
 	}
 	
-	public void setPosition(double[] position) throws IllegalArgumentException{
+	/**
+	 * Set the position of the ship to the given position.
+	 * @param position
+	 * 			x- and y-coordinate of the position.
+	 * @post The given position is set as the new position of the new ship.
+	 * @throws IllegalArgumentException
+	 * 			The given position isn't valid if the coordinates of 
+	 * 			the position aren't greater than Positive infinity and smaller than negative infinity. 
+	 * 			The given position isn't valid if position isn't an array of length 2.
+	 */
+	private void setPosition(double[] position) throws IllegalArgumentException{
 		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
 				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
@@ -32,14 +68,27 @@ public class Ship {
 	
 	private double[] speed = new double[2];
 	
+	/**
+	 * It returns an array of length 2, at index 0 you find the speed of the x-coordinate
+	 * and at index 1 you find the speed of the y-coordinate.
+	 * @return The speed of the ship.
+	 */
 	public double[] getSpeed(){
 		return this.speed;
 	}
 	
 	private double reducer;
 	
+	/**
+	 * @param speed
+	 * 			The speed of the x-coordinate and the speed of the y-coordinate of the ship.
+	 * @post If the given speed is equal or smaller then the speed of light, 
+	 * the speed of the ship will be the given speed of the ship.
+	 * @post If the given speed is faster than the speed of light, the new speed will be in the same direction as the
+	 * given speed, but the speed will be the speed of light.
+	 */
 	public void setSpeed (double[] speed) {
-		if (Math.sqrt(Math.pow( xSpeed , 2) + Math.pow(ySpeed, 2) )  < MaxSpeed)
+		if (Math.sqrt(Math.pow( xSpeed , 2) + Math.pow(ySpeed, 2) ) <= MaxSpeed)
 			this.speed = speed;
 		else
 			reducer = (Math.pow(xSpeed,2) + Math.pow(ySpeed, 2)) / MaxSpeed;
@@ -50,19 +99,48 @@ public class Ship {
 	
 	private final static int MaxSpeed = 300000;
 	
+	/**
+	 * It returns the direction that the new ship is facing expressed as an angle in radians.
+	 * @return The orientation of the ship.
+	 */
 	public double getOrientation(){
 		return this.orientation;
 	}
 	
+	/**
+	 * It returns if the given orientation is a valid orientation as a boolean type. 
+	 * @param orientation
+	 * 			An possible orientation for the ship.
+	 * @return	Returns the validity of an orientation for the ship.
+	 */
 	public boolean isValidOrientation(double orientation){
 		return ((orientation >=0) && (orientation < 2*Math.PI));
 	}
 	
+	/**
+	 * Set the orientation of the ship to the given orientation.
+	 * @param orientation
+	 * 			The orientation of the ship.
+	 * @pre The orientation is valid.
+	 * @throws IllegalArgumentException
+	 * 			The given orientation isn't valid.
+	 */
 	public void setOrientation(double orientation) throws IllegalArgumentException{
 		assert(isValidOrientation(orientation));
 		this.orientation = orientation;
-	}
+	} 
 	
+	/**
+	 * 
+	 * @param changeInOrientation
+	 * 			The angle of the difference in orientation between the position before change and after change.
+	 * @pre The current orientation is valid.
+	 * @pre The changeInOrientation is valid.
+	 * @post If the temporary orientation is smaller than zero, the new orientation is equal to 2 PI added to the 
+	 * temporary orientation.
+	 * @post If the temporary orientation is greater than 2*PI, the new orientation is equal to the difference between
+	 * the temporary orientation and 2*PI. 
+	 */
 	public void turn(double changeInOrientation){
 		assert(isValidOrientation(this.orientation));
 		assert(isValidOrientation(changeInOrientation));
@@ -77,16 +155,35 @@ public class Ship {
 	
 	private double newTemporaryOrientation;
 	
+	/**
+	 * It returns the orientation the radius of the ship.
+	 * @return the radius of the ship.
+	 */
 	public double getRadius(){
 		return this.radius;
 	}
 	
+	/**
+	 * Sets the radius of the ship to the given radius.
+	 * @param radius
+	 * 			The radius of the ship.
+	 * @throws IllegalArgumentException
+	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
+	 */
 	public void setRadius(double radius) throws IllegalArgumentException{
-		if ((radius < 10000) || (radius > Double.POSITIVE_INFINITY)) 
+		if ((radius < 10) || (radius > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
 		this.radius = radius;
 	}
 	
+	/**
+	 * It returns a boolean type. It returns true if the ship is a valid ship.
+	 * @param ship
+	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
+	 * @return An boolean value true
+	 * @throws IllegalArgumentException
+	 * 			It isn't a valid ship.
+	 */
 	public boolean isValidShip(Ship ship) throws IllegalArgumentException{
 		if (((ship.xPosition) < Double.NEGATIVE_INFINITY) || ((ship.xPosition) > Double.POSITIVE_INFINITY))
 			throw new IllegalArgumentException();
@@ -100,6 +197,16 @@ public class Ship {
 			return true;
 	}
 	
+	/**
+	 * It returns the distance between two given ships.
+	 * @param ship1
+	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
+	 * @param ship2
+	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
+	 * @return The distance between ship1 and ship2.
+	 * @throws IllegalArgumentException
+	 * 			If ship1 or/and ship2 aren't valid.
+	 */
 	public double getDistanceBetween(Ship ship1, Ship ship2) throws IllegalArgumentException{
 		if (isValidShip(ship1) == false)
 			throw new IllegalArgumentException();
@@ -108,6 +215,16 @@ public class Ship {
 		return Math.sqrt(Math.pow(ship1.xPosition - ship2.xPosition, 2) + Math.pow(ship1.yPosition - ship2.yPosition, 2)) - ship1.radius - ship2.radius; 
 	}
 	
+	/**
+	 * Returns a boolean type. Returns if the two given ships are at the same spot.
+	 * @param ship1
+	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
+	 * @param ship2
+	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
+	 * @return If ship1 and ship2 are at the same spot.
+	 * @throws IllegalArgumentException
+	 * 			If ship1 or/and ship2 aren't valid.
+	 */
 	public boolean overlap(Ship ship1, Ship ship2) throws IllegalArgumentException{
 		if (isValidShip(ship1) == false)
 			throw new IllegalArgumentException();
@@ -122,36 +239,36 @@ public class Ship {
 				return false;
 	}
 	
-	public double getTimeToCollision(Ship ship1, Ship ship2) throws IllegalArgumentException{
-		if (isValidShip(ship1) == false)
-			throw new IllegalArgumentException();
-		if (isValidShip(ship2) == false)
-			throw new IllegalArgumentException();
-		if (((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition)) > 0)
-			return Double.POSITIVE_INFINITY;
-		if ((Math.pow((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition),2) - 
-				(Math.pow(ship2.xSpeed-ship1.xSpeed, 2)+Math.pow(ship2.ySpeed-ship1.ySpeed, 2))*(Math.pow((ship2.xPosition-ship1.xPosition),2)+Math.pow((ship2.yPosition-ship1.yPosition), 2)) - 
-				Math.pow(ship1.xPosition-ship2.xPosition, 2) - Math.pow(ship1.yPosition-ship2.yPosition, 2)) < 0)
-			return Double.POSITIVE_INFINITY;
-		else
-			return ((-((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition)) - 
-					Math.sqrt((Math.pow((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition),2) - 
-				(Math.pow(ship2.xSpeed-ship1.xSpeed, 2)+Math.pow(ship2.ySpeed-ship1.ySpeed, 2))*(Math.pow((ship2.xPosition-ship1.xPosition),2)+Math.pow((ship2.yPosition-ship1.yPosition), 2)) - 
-				Math.pow(ship1.xPosition-ship2.xPosition, 2) - Math.pow(ship1.yPosition-ship2.yPosition, 2)))) / 
-					((Math.pow(ship2.xSpeed-ship1.xSpeed, 2)) + (Math.pow(ship2.ySpeed-ship1.ySpeed, 2))));
-	}
-	
+	/**
+	 * Returns a boolean type. 
+	 * @param duration
+	 * 			The given duration.
+	 * @return It return if the duration is valid.
+	 */
 	public boolean isValidDuration(double duration){
 		return duration >= 0;
 	}
 	
-	
+	/**
+	 * Sets the new position after a certain duration.
+	 * @param duration
+	 * 			The given duration.
+	 * @throws IllegalArgumentException
+	 * 			If the duration isn't valid.
+	 */
 	public void move(double duration) throws IllegalArgumentException{
 		assert (isValidDuration(duration));
 		double[] newposition = {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration};
 		setPosition(newposition);
 	}
 	
+	/**
+	 * It changes the speed of the ship but the orientation remains the same.
+	 * @param a
+	 * 		The given amount that changes the speed.
+	 * @post if the given amount a is smaller than 0, the given amount a will become zero.
+	 * 
+	 */
 	public void thrust(double a) {
 		if (a < 0)
 			a = 0;
@@ -160,5 +277,6 @@ public class Ship {
 	}
 	
 }
+
 
 
