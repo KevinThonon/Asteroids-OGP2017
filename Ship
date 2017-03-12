@@ -129,7 +129,17 @@ public class Ship {
 	
 	public void move(double duration) throws IllegalArgumentException{
 		assert (isValidDuration(duration));
-		setPosition(this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration);
+		double[] newposition = {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration};
+		setPosition(newposition);
 	}
+	
+	public void thrust(double a) {
+		if (a < 0)
+			a = 0;
+		double[] newspeed = {this.getSpeed()[0] + a*Math.cos(this.getOrientation()) , this.getSpeed()[1] + a*Math.sin(this.getOrientation())};
+		setSpeed(newspeed);
+	}
+	
 }
+
 
