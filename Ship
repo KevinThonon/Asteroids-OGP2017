@@ -122,6 +122,25 @@ public class Ship {
 				return false;
 	}
 	
+	public double getTimeToCollision(Ship ship1, Ship ship2) throws IllegalArgumentException{
+		if (isValidShip(ship1) == false)
+			throw new IllegalArgumentException();
+		if (isValidShip(ship2) == false)
+			throw new IllegalArgumentException();
+		if (((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition)) > 0)
+			return Double.POSITIVE_INFINITY;
+		if ((Math.pow((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition),2) - 
+				(Math.pow(ship2.xSpeed-ship1.xSpeed, 2)+Math.pow(ship2.ySpeed-ship1.ySpeed, 2))*(Math.pow((ship2.xPosition-ship1.xPosition),2)+Math.pow((ship2.yPosition-ship1.yPosition), 2)) - 
+				Math.pow(ship1.xPosition-ship2.xPosition, 2) - Math.pow(ship1.yPosition-ship2.yPosition, 2)) < 0)
+			return Double.POSITIVE_INFINITY;
+		else
+			return ((-((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition)) - 
+					Math.sqrt((Math.pow((ship2.xSpeed-ship1.xSpeed)*(ship2.xPosition-ship1.xPosition)+(ship2.ySpeed-ship1.ySpeed)*(ship2.yPosition-ship1.yPosition),2) - 
+				(Math.pow(ship2.xSpeed-ship1.xSpeed, 2)+Math.pow(ship2.ySpeed-ship1.ySpeed, 2))*(Math.pow((ship2.xPosition-ship1.xPosition),2)+Math.pow((ship2.yPosition-ship1.yPosition), 2)) - 
+				Math.pow(ship1.xPosition-ship2.xPosition, 2) - Math.pow(ship1.yPosition-ship2.yPosition, 2)))) / 
+					((Math.pow(ship2.xSpeed-ship1.xSpeed, 2)) + (Math.pow(ship2.ySpeed-ship1.ySpeed, 2))));
+	}
+	
 	public boolean isValidDuration(double duration){
 		return duration >= 0;
 	}
