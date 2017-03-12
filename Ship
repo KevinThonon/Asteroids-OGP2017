@@ -240,6 +240,189 @@ public class Ship {
 	}
 	
 	/**
+	 * When the ships collide the distance between the centres is equal to the sum of both radiuses
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The sum of both radiuses
+	 */
+	
+	private double distanceBetweenCentersAtCollision(Ship ship1, Ship ship2){
+		return ship1.getRadius() + ship2.getRadius();
+	}
+	
+	/**
+	 * The difference between the x-coordinates of both ships
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The difference between both x-coordinates
+	 */
+	
+	private double deltaX(Ship ship1, Ship ship2){
+		return ship1.xPosition - ship2.xPosition;
+	}
+	
+	/**
+	 * The difference between the y-coordinates of both ships
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The difference between both y-coordinates
+	 */
+	
+	private double deltaY(Ship ship1, Ship ship2){
+		return ship1.yPosition - ship2.yPosition;
+	}
+	
+	/**
+	 * The difference between the x-coordinates and y-coordinates of both ships
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The difference between both x-coordinates and y-coordinates
+	 */
+	
+	private double[] deltaPosition(Ship ship1, Ship ship2){
+		return new double[]{ship1.deltaX(ship1, ship2),ship1.deltaY(ship1, ship2)};
+	}
+	
+	/**
+	 * The difference between the speed in x-direction of both ships
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The difference between both speeds in x-direction
+	 */
+	
+	private double deltaVX(Ship ship1, Ship ship2){
+		return ship1.xSpeed - ship2.xSpeed;
+	}
+	
+	/**
+	 * The difference between the speed in y-direction of both ships
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The difference between both speeds in y-direction
+	 */
+	
+	private double deltaVY(Ship ship1, Ship ship2){
+		return ship1.ySpeed - ship2.ySpeed;
+	}
+	
+	/**
+	 * The difference between the speed in x-direction and y-direction of both ships
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The difference between both speeds in x-direction and y-direction
+	 */
+	
+	private double[] deltaSpeed(Ship ship1, Ship ship2){
+		return new double[]{ship1.deltaVX(ship1, ship2),ship1.deltaVY(ship1, ship2)};
+	}
+	
+	/**
+	 * This function gives a double which is the sum of the product of the first number from the first vector and the 
+	 * first number from the second vector and the product of the second number of the first vector and the second number of the second vector
+	 * @param vector1
+	 * 		The first vector of length 2
+	 * @param vector2
+	 * 		The second vector of length 2
+	 * @return
+	 * 		the dot product of 2 vectors of length 2 (result is a single value)
+	 */
+	
+	private static double dotProduct(double[] vector1, double[] vector2) {
+		return ((vector1[0] * vector2[0]) + (vector1[1] * vector2[1]));
+	}
+	
+	/**
+	 * This function registers a certain value that is used in the collision function, if it is negative,
+	 * the ships will never collide, if it is positive they will collide
+	 * @param ship1
+	 * 		First ship
+	 * @param ship2
+	 * 		Second ship
+	 * @return
+	 * 		The value d
+	 */
+	
+	private double d(Ship ship1, Ship ship2){
+		return Math.pow(dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaPosition(ship1, ship2)), 2) - 
+				(dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaSpeed(ship1, ship2))) * (dotProduct(ship1.deltaPosition(ship1, ship2),ship1.deltaPosition(ship1, ship2))
+				- Math.pow(ship1.distanceBetweenCentersAtCollision(ship1, ship2), 2));
+	}
+	
+	/**
+	 * This method will give at what time in the future 2 ships would collide if they were to continue forward without changing direction
+	 * or accelerating/slow down
+	 * @param ship1
+	 * 		The first ship of the 2 ships we are comparing
+	 * @param ship2
+	 * 		The second ship of the 2 ships we are comparing
+	 * @return
+	 * 		If the ships never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
+	 * 		If they would collapse the function will return a duration described as a double
+	 * @throws IllegalArgumentException
+	 * 		If one or both of the ships are not valid ships then the function will give an error
+	 */
+	
+	public double getTimeToCollision(Ship ship1, Ship ship2) throws IllegalArgumentException{
+		if (isValidShip(ship1) == false)
+			throw new IllegalArgumentException();
+		if (isValidShip(ship2) == false)
+			throw new IllegalArgumentException();
+		if ((dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaPosition(ship1, ship2))) > 0)
+			return Double.POSITIVE_INFINITY;
+		if ((ship1.d(ship1, ship2)) < 0)
+			return Double.POSITIVE_INFINITY;
+		else
+			return (-(dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaPosition(ship1, ship2)) + Math.sqrt(ship1.d(ship1, ship2)))
+					/ dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaSpeed(ship1, ship2)));
+	}
+	
+	/**
+	 * This function will return the centre of the first ship at the time of collision
+	 * @param ship1
+	 * 		The first ship
+	 * @param ship2
+	 * 		The second ship
+	 * @return
+	 * 		The position of the centre of the first ship
+	 * @throws IllegalArgumentException
+	 * 		If the ships are not valid ships or if they already overlap the function will give an error
+	 */
+	
+	public double[] getCollisionPosition(Ship ship1, Ship ship2) throws IllegalArgumentException{
+		if (isValidShip(ship1) == false)
+			throw new IllegalArgumentException();
+		if (isValidShip(ship2) == false)
+			throw new IllegalArgumentException();
+		if (ship1.overlap(ship1, ship2))
+			throw new IllegalArgumentException();
+		if (getTimeToCollision(ship1, ship2) == Double.POSITIVE_INFINITY)
+			return null;
+		else
+			return new double[] {ship1.xPosition + ship1.xSpeed*getTimeToCollision(ship1, ship2),ship1.yPosition + ship1.ySpeed*getTimeToCollision(ship1, ship2)};
+	}
+	
+	/**
 	 * Returns a boolean type. 
 	 * @param duration
 	 * 			The given duration.
