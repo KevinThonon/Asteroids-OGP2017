@@ -53,12 +53,14 @@ public class Ship {
 	 * @post The given position is set as the new position of the new ship.
 	 * @throws IllegalArgumentException
 	 * 			The given position isn't valid if the coordinates of 
-	 * 			the position aren't greater than Positive infinity and smaller than negative infinity. 
+	 * 			the position aren't greater than Positive infinity and smaller than negative infinity.
+	 * 			If the position is NaN. 
 	 * 			The given position isn't valid if position isn't an array of length 2.
 	 */
 	private void setPosition(double[] position) throws IllegalArgumentException{
 		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
-				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)) 
+				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)
+				|| (xPosition == Double.NaN) || (yPosition == Double.NaN)) 
 			throw new IllegalArgumentException();
 		if (position.length != 2) throw new IllegalArgumentException();
 		this.position = position;
@@ -82,12 +84,18 @@ public class Ship {
 	/**
 	 * @param speed
 	 * 			The speed of the x-coordinate and the speed of the y-coordinate of the ship.
+	 * @post If the speed of the x-coordinate is NaN, it turns into zero.
+	 * @post If the speed of the y-coordinate is NaN, it turns into zero.
 	 * @post If the given speed is equal or smaller then the speed of light, 
 	 * the speed of the ship will be the given speed of the ship.
 	 * @post If the given speed is faster than the speed of light, the new speed will be in the same direction as the
 	 * given speed, but the speed will be the speed of light.
 	 */
 	public void setSpeed (double[] speed) {
+		if (xSpeed == Double.NaN)
+			xSpeed=0;
+		if (ySpeed == Double.NaN)
+			ySpeed=0;
 		if (Math.sqrt(Math.pow( xSpeed , 2) + Math.pow(ySpeed, 2) ) <= MaxSpeed)
 			this.speed = speed;
 		else
