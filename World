@@ -1,0 +1,87 @@
+package asteroids.model;
+
+import java.util.HashSet;
+import java.util.Set;
+
+public class World {
+	
+	private double width;
+	private double height;
+	
+	/**Create a world with a width and height 
+	 * expressed in kilometres (km).
+	 * 
+	 * @param width
+	 * 		  The width of this world.
+	 * @param height
+	 * 		  The height of this world.
+	 * @post  this.width = width
+	 * @post  this.height = height
+	 * 
+	 */
+	
+	public World(double width, double height){
+		this.width = width;
+		this.height = height;
+	}
+	
+	public Set<Ship> getShips(){
+		return ships;
+	}
+	
+	private Set<Ship> ships = new HashSet<Ship>();
+	
+	public Set<Bullet> getBullets(){
+		return bullets;
+	}
+	
+	private Set<Bullet> bullets = new HashSet<Bullet>();
+	
+	private boolean canHaveAsShip(Ship ship1) {
+		for (Ship ship2: getShips()){
+			if (ship1.overlap(ship1, ship2))
+				return false;}
+		for (Bullet bullet: getBullets()){
+			if (ship1.overlap(ship1,bullet))
+			    return false;}
+		if (ship1.getWorld() = this || ship1.getWorld() = null )  //intorduce getWorld() en setWorld en isValidWorld (definsief) in entity class
+			return true;
+		return false;
+	}
+	
+	public void addShip(Ship ship) {
+		if (!canHaveAsShip(ship)) throw new IllegalArgumentException("The world can't have this ship.");
+		ships.add(ship);
+		ship.setWorld(this);
+	}
+	
+	public void removeShip(Ship ship) {
+		if (!ship.getWorld=this) throw new IllegalArgumentException("This ship isn't in this world.");
+		ships.remove(ship);
+		ship.setWorld(null);
+	}
+	
+	private boolean canHaveAsBullet(Bullet bullet1) {
+		for (Bullet bullet2: getBullets()) {
+			if (bullet1.overlap(bullet1,bullet2))
+				return false;}
+		for (Ship ship: getShips()) {
+			if (bullet1.overlap(bullet1,ship))
+				return false;}
+		if (bullet1.getWorld() = this || bullet1.getWorld() = null )
+			return true;
+		return false;
+	}
+	
+	public void addBullet(Bullet bullet) {
+		if (!canHaveAsBullet(bullet)) throw new IllegalArgumentException("The world can't have this bullet.");
+		bullets.add(bullet);
+		ship.setWorld(this);
+	}
+	
+	public void removeBullet(Bullet bullet) {
+		if (!bullet.getWorld=this) throw new IllegalArgumentException("This bullet isn't in this world");
+		bullets.remove(bullet);
+		bullet.setWorld(null);
+	}
+}
