@@ -1,3 +1,9 @@
+/**
+ * Class ship for the first part of the project of ogp 2017
+ * 
+ * @author Kevin Thonon & Jef Jonkers
+ */
+
 package asteroids.model;
 
 public class Ship {
@@ -42,6 +48,11 @@ public class Ship {
 	 * and at index 1 you find the y-coordinate.
 	 * @return The position of the ship.
 	 */
+	
+	/**
+	 * @basic info over toestand van schip
+	 * @return
+	 */
 	public double[] getPosition(){
 		return this.position;
 	}
@@ -56,6 +67,10 @@ public class Ship {
 	 * 			the position aren't greater than Positive infinity and smaller than negative infinity.
 	 * 			If the position is NaN. 
 	 * 			The given position isn't valid if position isn't an array of length 2.
+	 * 
+	 * IsValid erbij zetten
+	 * Van array 2 variabelen maken
+	 * Bij setters @raw omdat vaak fout
 	 */
 	private void setPosition(double[] position) throws IllegalArgumentException{
 		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
@@ -65,7 +80,9 @@ public class Ship {
 		if (position.length != 2) throw new IllegalArgumentException();
 		this.position = position;
 	}
-	
+	/**
+	 * Double array vervangen in vector/value klasse
+	 */
 	private double[] position = new double[2];
 	
 	private double[] speed = new double[2];
@@ -85,11 +102,15 @@ public class Ship {
 	 * @param speed
 	 * 			The speed of the x-coordinate and the speed of the y-coordinate of the ship.
 	 * @post If the speed of the x-coordinate is NaN, it turns into zero.
+	 * 		 info bijgeven als er een nieuw schip wordt gemaakt
 	 * @post If the speed of the y-coordinate is NaN, it turns into zero.
 	 * @post If the given speed is equal or smaller then the speed of light, 
 	 * the speed of the ship will be the given speed of the ship.
 	 * @post If the given speed is faster than the speed of light, the new speed will be in the same direction as the
 	 * given speed, but the speed will be the speed of light.
+	 * formeel & informele info
+	 * 
+	 * isValid bijmaken
 	 */
 	public void setSpeed (double[] speed) {
 		if (xSpeed == Double.NaN)
@@ -120,8 +141,11 @@ public class Ship {
 	 * @param orientation
 	 * 			An possible orientation for the ship.
 	 * @return	Returns the validity of an orientation for the ship.
+	 * 
+	 * NAN bijsteken
+	 * return ((orientation >=0) && (orientation < 2*Math.PI)); bijplakken
 	 */
-	public boolean isValidOrientation(double orientation){
+	public static boolean isValidOrientation(double orientation){
 		return ((orientation >=0) && (orientation < 2*Math.PI));
 	}
 	
@@ -130,6 +154,7 @@ public class Ship {
 	 * @param orientation
 	 * 			The orientation of the ship.
 	 * @pre The orientation is valid.
+	 * 		isValidOrientation = true
 	 * @throws IllegalArgumentException
 	 * 			The given orientation isn't valid.
 	 */
@@ -211,7 +236,9 @@ public class Ship {
 	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
 	 * @param ship2
 	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
-	 * @return The distance between ship1 and ship2.
+	 * @return The distance between ship1 and ship2. 
+	 * 			Meer info toevoegen
+	 * @return Same als het over hetzelfde gaat
 	 * @throws IllegalArgumentException
 	 * 			If ship1 or/and ship2 aren't valid.
 	 */
@@ -387,6 +414,8 @@ public class Ship {
 	 * @return
 	 * 		If the ships never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
 	 * 		If they would collapse the function will return a duration described as a double
+	 * 		Formeel & informeel
+	 * @return Als ze botsen of juist niet
 	 * @throws IllegalArgumentException
 	 * 		If one or both of the ships are not valid ships then the function will give an error
 	 */
@@ -446,6 +475,8 @@ public class Ship {
 	 * 			The given duration.
 	 * @throws IllegalArgumentException
 	 * 			If the duration isn't valid.
+	 * defensief programmeren
+	 * @post toevoegen, wat is er gebeurd?
 	 */
 	public void move(double duration) throws IllegalArgumentException{
 		assert (isValidDuration(duration));
@@ -457,7 +488,8 @@ public class Ship {
 	 * It changes the speed of the ship but the orientation remains the same.
 	 * @param a
 	 * 		The given amount that changes the speed.
-	 * @post if the given amount a is smaller than 0, the given amount a will become zero.
+	 * @post if the given amount a is smaller than 0, the given amount a will become zero and we keep the same velocity.
+	 * @effect verwijst naar setSpeed
 	 * 
 	 */
 	public void thrust(double a) {
@@ -468,6 +500,3 @@ public class Ship {
 	}
 	
 }
-
-
-
