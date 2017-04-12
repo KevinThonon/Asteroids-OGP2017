@@ -3,10 +3,12 @@ package asteroids.model;
 import java.util.HashSet;
 import java.util.Set;
 
+
+
 public class World {
 	
-	private double width;
-	private double height;
+	public double width;
+	public double height;
 	
 	/**Create a world with a width and height 
 	 * expressed in kilometres (km).
@@ -35,7 +37,17 @@ public class World {
 		return bullets;
 	}
 	
+	
 	private Set<Bullet> bullets = new HashSet<Bullet>();
+	
+    public Set<Entity> getEntitys(){
+		entitys.addAll(getBullets());
+		entitys.addAll(getShips());
+		return this.entitys;
+	}
+	
+	private Set<Entity> entitys = new HashSet<Entity>();  
+	
 	
 	private boolean canHaveAsShip(Ship ship1) {
 		for (Ship ship2: getShips()){
@@ -44,7 +56,7 @@ public class World {
 		for (Bullet bullet: getBullets()){
 			if (ship1.overlap(ship1,bullet))
 			    return false;}
-		if (ship1.getWorld() = this || ship1.getWorld() = null )  //intorduce getWorld() en setWorld en isValidWorld (definsief) in entity class
+		if (ship1.getWorld() == this || ship1.getWorld() == null )  //intorduce getWorld() en setWorld en isValidWorld (definsief) in entity class
 			return true;
 		return false;
 	}
@@ -56,7 +68,7 @@ public class World {
 	}
 	
 	public void removeShip(Ship ship) {
-		if (!ship.getWorld=this) throw new IllegalArgumentException("This ship isn't in this world.");
+		if (ship.getWorld() != this) throw new IllegalArgumentException("This ship isn't in this world.");
 		ships.remove(ship);
 		ship.setWorld(null);
 	}
@@ -68,7 +80,7 @@ public class World {
 		for (Ship ship: getShips()) {
 			if (bullet1.overlap(bullet1,ship))
 				return false;}
-		if (bullet1.getWorld() = this || bullet1.getWorld() = null )
+		if (bullet1.getWorld() == this || bullet1.getWorld() == null )
 			return true;
 		return false;
 	}
@@ -76,12 +88,72 @@ public class World {
 	public void addBullet(Bullet bullet) {
 		if (!canHaveAsBullet(bullet)) throw new IllegalArgumentException("The world can't have this bullet.");
 		bullets.add(bullet);
-		ship.setWorld(this);
+		bullet.setWorld (this);
 	}
 	
 	public void removeBullet(Bullet bullet) {
-		if (!bullet.getWorld=this) throw new IllegalArgumentException("This bullet isn't in this world");
+		if (bullet.getWorld() != this) throw new IllegalArgumentException("This bullet isn't in this world");
 		bullets.remove(bullet);
 		bullet.setWorld(null);
 	}
+	
+	
+	
+	public double getMinCollisionInWorld(){
+		Set<Entity> entitystocontrol = getEntitys();
+		double mintimetocollision = Double.POSITIVE_INFINITY; 
+		for (Entity entity1: getEntitys()) {
+			if (entity1.timeToBoundaryCollision() < mintimetocollision)
+				mintimetocollision= entity1.timeToBoundaryCollision();
+			entitystocontrol.remove(entity1);
+			for (Entity entity2: entitystocontrol){
+				double timetocollision = entity1.getTimeToCollision(entity1,entity2);
+				if (timetocollision < mintimetocollision)
+					mintimetocollision = timetocollision;
+			}
+		}
+		return mintimetocollision;
+	}
+	
+	private boolean isValidTime(double time){
+		if (time < 0)
+			return false;
+		if (time == Double.POSITIVE_INFINITY)
+			return false;
+		if (time == Double.NaN)
+			return false;
+		return true;
+		
+	}
+	
+	public void collisionBetweenBulletBullet(Bullet bullet1,Bullet bullet2){
+		bullets.remove(bullet1);
+		bullets.remove(bullet2);
+		//bullet1 = null;
+		//bullet2 = null;
+	}
+	
+	public void collisionBetweenShipBullet(Ship ship,Bullet bullet){
+		if (ship == bullet.getSource()){
+			//the bullet is reloaded on the ship, with its position equal to the centre of the ship.
+		}
+		else{
+			bullets.remove(bullet);
+			ships.remove(ship);
+		}
+	}
+	
+	public void collisionWithBulletBoundry(Bullet bullet){
+		if (bullet.residualbounces == 0){
+			bullets.remove(bullet);}
+		else{
+			bullet.substractBounce();
+		}
+			
+	}
+	public void evolve(double time){
+		if (!(isValidTime(time))) throw new IllegalArgumentException("This given certain time isn't valid");
+		
+	}
+	
 }
