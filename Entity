@@ -314,6 +314,27 @@ public abstract class Entity {
 	}
 	
 	public boolean apparentlyWithinBoundaries(World world, Entity entity){
-		
+		return (entity.xPosition/entity.radius <= 0.99) || (entity.yPosition/entity.radius <= 0.99) ||
+				((world.width - entity.xPosition)/entity.radius <= 0.99) || ((world.height - entity.yPosition)/entity.radius <= 0.99);
 	}
+	
+	public boolean apparantlyCollide(Entity entity1, Entity entity2){
+		if (entity1.getWorld(entity1) != entity2.getWorld(entity2))
+			return false;
+		else 
+			return (entity1.getDistanceBetween(entity1, entity2)/(entity1.getRadius()+entity2.getRadius()) >= 0.99) &&
+				(entity1.getDistanceBetween(entity1, entity2)/(entity1.getRadius()+entity2.getRadius()) <= 1.01);
+	}
+	
+	private World world;
+	
+	public World getWorld(Entity entity){
+		return world;
+	}
+	
+	public void setWorld(World world){
+		this.world = world;
+	}
+	
+	
 }
