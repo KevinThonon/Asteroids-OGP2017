@@ -15,14 +15,20 @@ public abstract class Entity {
 	private double ySpeed;
 	private double radius;
 	
-	private static boolean isValidPosition(double[] position) {
-		if (position.length != 2) return false;
-		if (Double.isNaN(position[0])) return false;
-		if (Double.isNaN(position[1])) return false;
-		/**
-		 * nog toe te voegen: als xPos of yPos buiten World valt
-		 */
-		return true;
+	private boolean isValidPosition(double[] position) {
+		if (position.length != 2) 
+			return false;
+		if (Double.isNaN(position[0])) 
+			return false;
+		if (Double.isNaN(position[1])) 
+			return false;
+		World world = this.getWorld();
+		if (position[0] > world.width)
+			return false;
+		if (position[1] > world.height)
+			return false;
+		else
+			return true;
 	}
 	
 	public double[] getPosition(){
@@ -109,7 +115,7 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * The difference between the x-coordinates of both entitys
+	 * The difference between the x-coordinates of both entities
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -123,7 +129,7 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * The difference between the y-coordinates of both entitys
+	 * The difference between the y-coordinates of both entities
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -137,7 +143,7 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * The difference between the x-coordinates and y-coordinates of both entitys
+	 * The difference between the x-coordinates and y-coordinates of both entities
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -151,7 +157,7 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * The difference between the speed in x-direction of both entitys
+	 * The difference between the speed in x-direction of both entities
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -165,7 +171,7 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * The difference between the speed in y-direction of both entitys
+	 * The difference between the speed in y-direction of both entities
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -179,7 +185,7 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * The difference between the speed in x-direction and y-direction of both entitys
+	 * The difference between the speed in x-direction and y-direction of both entities
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -209,7 +215,7 @@ public abstract class Entity {
 	
 	/**
 	 * This function registers a certain value that is used in the collision function, if it is negative,
-	 * the entitys will never collide, if it is positive they will collide
+	 * the entities will never collide, if it is positive they will collide
 	 * @param entity1
 	 * 		First entity
 	 * @param entity2
@@ -225,19 +231,19 @@ public abstract class Entity {
 	}
 	
 	/**
-	 * This method will give at what time in the future 2 entitys would collide if they were to continue forward without changing direction
+	 * This method will give at what time in the future 2 entities would collide if they were to continue forward without changing direction
 	 * or accelerating/slow down
 	 * @param entity1
-	 * 		The first entity of the 2 entitys we are comparing
+	 * 		The first entity of the 2 entities we are comparing
 	 * @param entity2
-	 * 		The second entity of the 2 entitys we are comparing
+	 * 		The second entity of the 2 entities we are comparing
 	 * @return
-	 * 		If the entitys never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
+	 * 		If the entities never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
 	 * 		If they would collapse the function will return a duration described as a double
 	 * 		Formeel & informeel
 	 * @return Als ze botsen of juist niet
 	 * @throws IllegalArgumentException
-	 * 		If one or both of the entitys are not valid entitys then the function will give an error
+	 * 		If one or both of the entities are not valid entities then the function will give an error
 	 */
 	
 	public double getTimeToCollision(Entity entity1, Entity entity2) throws IllegalArgumentException{
@@ -263,7 +269,7 @@ public abstract class Entity {
 	 * @return
 	 * 		The position of the centre of the first entity
 	 * @throws IllegalArgumentException
-	 * 		If the entitys are not valid entitys or if they already overlap the function will give an error
+	 * 		If the entities are not valid entities or if they already overlap the function will give an error
 	 */
 	
 	public double[] getCollisionPosition(Entity entity1, Entity entity2) throws IllegalArgumentException{
@@ -318,18 +324,41 @@ public abstract class Entity {
 				((world.width - entity.xPosition)/entity.radius <= 0.99) || ((world.height - entity.yPosition)/entity.radius <= 0.99);
 	}
 	
-	public boolean apparantlyCollide(Entity entity1, Entity entity2){
-		if (entity1.getWorld(entity1) != entity2.getWorld(entity2))
+	public boolean apparantlyCollide(Entity entity1){
+		if (this.getWorld() != entity1.getWorld())
 			return false;
 		else 
-			return (entity1.getDistanceBetween(entity1, entity2)/(entity1.getRadius()+entity2.getRadius()) >= 0.99) &&
-				(entity1.getDistanceBetween(entity1, entity2)/(entity1.getRadius()+entity2.getRadius()) <= 1.01);
+			return (this.getDistanceBetween(this, entity1)/(this.getRadius()+entity1.getRadius()) >= 0.99) &&
+				(this.getDistanceBetween(this, entity1)/(this.getRadius()+entity1.getRadius()) <= 1.01);
+	}
+	
+	public double timeToBoundaryCollision(){
+		World world = this.world;
+		if (world == null)
+			return Double.POSITIVE_INFINITY;
+		double xTime = Double.POSITIVE_INFINITY;
+		double yTime = Double.POSITIVE_INFINITY;
+		if (this.xSpeed > 0)
+			xTime = (world.width - this.xPosition - this.radius) / this.xSpeed;
+		if (this.xSpeed < 0)
+			xTime = -(world.width - this.xPosition - this.radius) / this.xSpeed;
+		if (this.ySpeed > 0)
+			xTime = (world.height - this.yPosition - this.radius) / this.ySpeed;
+		if (this.ySpeed < 0)
+			xTime = -(world.height - this.yPosition - this.radius) / this.ySpeed;
+		return Math.min(xTime, yTime);
+	}
+	
+	public double[] positionBoundaryCollision(){
+		if (this.timeToBoundaryCollision() == Double.POSITIVE_INFINITY)
+			return new double[] {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
+		
 	}
 	
 	private World world;
 	
-	public World getWorld(Entity entity){
-		return world;
+	public World getWorld(){
+		return this.world;
 	}
 	
 	public void setWorld(World world){
