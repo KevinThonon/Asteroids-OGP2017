@@ -1,0 +1,46 @@
+package asteroids.model;
+
+public class Bullet extends Entity{
+
+	protected Bullet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
+			throws IllegalArgumentException {
+		super(xPosition, yPosition, xSpeed, ySpeed, radius);
+	}
+	
+	private final static double density = 7.8*Math.pow(10, 2);
+	
+	public double getMass() {
+		return (4/3)*Math.PI*Math.pow(getRadius(), 3)*density;
+	}
+	
+	public Ship getSource() {
+		return this.source;
+	}
+	
+	public Ship source;
+	
+	public void setSource(Ship ship) {
+		this.source=ship;
+	}
+	
+	public double residualbounces = 2;
+	
+	public double getResidualBounces() {
+		return this.residualbounces;
+	}
+	
+	public void substractBounce() {
+		residualbounces = residualbounces - 1;
+	}
+	
+	private Ship ship;
+	
+	public void setShip(Ship ship) { //veranderen klopt langs geen kanten
+		
+	}
+	
+	public Ship getShip() {
+		return this.ship;
+	}
+	
+}
