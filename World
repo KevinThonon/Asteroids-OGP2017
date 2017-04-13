@@ -28,6 +28,13 @@ public class World {
 		this.height = height;
 	}
 	
+	public double getWidth(){
+		return width;
+	}
+	
+	public double getHeigth(){
+		return height;
+	}
 	public Set<Ship> getShips(){
 		return ships;
 	}
@@ -117,13 +124,13 @@ public class World {
 	}
 	
 	public boolean isBulletClass(Entity entity){
-    	if (entity.getClass() == Ship.class)
+    	if (entity instanceof Ship)
     		return false;
         return true;
     }
 	
     public boolean isShipClass(Entity entity){
-    	if (entity.getClass() == Ship.class)
+    	if (entity instanceof Ship)
     		return true;
     	return false;
     }
@@ -169,9 +176,10 @@ public class World {
 	}
 	
 	public void collisionBetweenShipShip(Ship ship1, Ship ship2){
-		double J = (2*ship1.getMass*ship2.getMass*ship1.deltaPosition(ship1,ship2)*ship1.deltaSpeed(ship1,ship2))/(ship1.getDensity*(ship1.getMass*ship2.getMass));
-		double Jx = (J*ship1.deltaX(ship1, ship2))/(ship1.getDensity);
-		double Jy = (J*ship1.deltaY(ship1, ship2))/(ship1.getDensity);
+		double J = 2*(ship1.getMass())*(ship2.getMass())*ship1.dotProduct(ship1.deltaPosition(ship1, ship2),ship1.deltaSpeed(ship1, ship2))
+				/(ship1.getDensity()*(ship1.getMass()*ship2.getMass()));
+		double Jx = (J*ship1.deltaX(ship1, ship2))/(ship1.getDensity());
+		double Jy = (J*ship1.deltaY(ship1, ship2))/(ship1.getDensity());
 		ship1.setSpeed(new double[] {ship1.getSpeed()[0] + Jx/ship1.getMass(), ship1.getSpeed()[1] + Jy/ship1.getMass()});
 		ship2.setSpeed(new double[] {ship2.getSpeed()[0] - Jx/ship2.getMass(), ship2.getSpeed()[1] - Jy/ship2.getMass()});
 	}
@@ -187,27 +195,27 @@ public class World {
 	}
 	
 	
-	public void collisionWithShipBoundry(Entity entity){
-		if((entity.positionBoundaryCollision()[0] - width) < (entity.positionBoundaryCollision()[1] - height)){
-			entity.setSpeed(new double[] {-entity.getSpeed()[0],entity.getSpeed()[1]});
+	public void collisionWithShipBoundry(Ship ship){
+		if((ship.positionBoundaryCollision()[0] - width) < (ship.positionBoundaryCollision()[1] - height)){
+			ship.setSpeed(new double[] {-ship.getSpeed()[0],ship.getSpeed()[1]});
 		}
 		else{
-			entity.setSpeed(new double[] {entity.getSpeed()[0],-entity.getSpeed()[1]});
+			ship.setSpeed(new double[] {ship.getSpeed()[0],-ship.getSpeed()[1]});
 		}
 	}
 	
 	
-	public void collisionWithBulletBoundry(Entity entity){
-		if (entity.residualbounces == 0){
-			bullets.remove(entity);}
+	public void collisionWithBulletBoundry(Bullet bullet){
+		if (bullet.residualbounces == 0){
+			bullets.remove(bullet);}
 		else{
-			if((entity.positionBoundaryCollision()[0] - width) < (entity.positionBoundaryCollision()[1] - height)){
-				entity.setSpeed(new double[] {-entity.getSpeed()[0],entity.getSpeed()[1]});
+			if((bullet.positionBoundaryCollision()[0] - width) < (bullet.positionBoundaryCollision()[1] - height)){
+				bullet.setSpeed(new double[] {-bullet.getSpeed()[0],bullet.getSpeed()[1]});
 			}
 			else{
-				entity.setSpeed(new double[] {entity.getSpeed()[0],-entity.getSpeed()[1]});
+				bullet.setSpeed(new double[] {bullet.getSpeed()[0],-bullet.getSpeed()[1]});
 			}
-			entity.substractBounce();
+			bullet.substractBounce();
 		}
 	}
 	
@@ -216,23 +224,28 @@ public class World {
 		List<Entity> entities = getCollisions();
 		if(entities.size()==1){
 			if (isShipClass(entities.get(0))){
-				collisionWithShipBoundry(entities.get(0));
+				collisionWithShipBoundry((Ship)entities.get(0));
 			}
 			else{
-				collisionWithBulletBoundry(entities.get(0));
+				collisionWithBulletBoundry((Bullet)entities.get(0));
 			}
 		}
 		else{
 			if (isShipClass(entities.get(0)) || isShipClass(entities.get(1))){
 				if (isShipClass(entities.get(1)) && isShipClass(entities.get(0))){
-					collisionBetweenShipShip(entities.get(0),entities.get(1));
+					collisionBetweenShipShip((Ship)entities.get(0),(Ship)entities.get(1));
 				}
 				else{
-					collisionBetweenShipBullet(entities.get(0),entities.get(1));
+					if (isBulletClass(entities.get(0))){
+						collisionBetweenShipBullet((Ship)entities.get(1),(Bullet)entities.get(0));
+					}
+					else{
+						collisionBetweenShipBullet((Ship)entities.get(0),(Bullet)entities.get(1));
+					}
 				}
 			}
 			else{
-				collisionBetweenBulletBullet(entities.get(0),entities.get(1));
+				collisionBetweenBulletBullet((Bullet)entities.get(0),(Bullet)entities.get(1));
 			}
 		}
 	}
@@ -255,5 +268,23 @@ public class World {
 		}
 	}
 	
+	public void destroyWorld(){
+		Set<Entity> entities = getEntitys();
+		for (Entity entity: entities){
+			entity.setWorld(null);
+			}
+		entitys.clear();
+		bullets.clear();
+		ships.clear();
+		}
+	
+	public boolean isDestoyedWorld(){
+		if (bullets.size()==0 && ships.size()==0)
+			return true;
+		return false;
+		
+	}
+	
 }
+
 
