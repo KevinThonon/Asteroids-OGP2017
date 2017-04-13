@@ -2,7 +2,7 @@ package asteroids.model;
 
 public class Bullet extends Entity{
 
-	protected Bullet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
+	public Bullet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
 			throws IllegalArgumentException {
 		super(xPosition, yPosition, xSpeed, ySpeed);
 		this.setRadius(radius);
@@ -107,5 +107,17 @@ public class Bullet extends Entity{
 		double[] newposition = {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration};
 		setPosition(newposition);
 	}
+	
+	public void terminateBullet(){
+		this.setWorld(null);
+	}
+	
+	public boolean isTerminatedBullet(){
+		if (this.getWorld() == null){
+			return true;
+		}
+		return false;
+	}
+	
 	
 }
