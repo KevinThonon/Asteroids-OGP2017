@@ -1,6 +1,7 @@
 package asteroids.model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -115,6 +116,42 @@ public class World {
 		return mintimetocollision;
 	}
 	
+	public boolean isBulletClass(Entity entity){
+    	if (entity.getClass() == Ship.class)
+    		return false;
+        return true;
+    }
+	
+    public boolean isShipClass(Entity entity){
+    	if (entity.getClass() == Ship.class)
+    		return true;
+    	return false;
+    }
+	
+	public List<Entity> getCollisions(){
+		List<Entity> collisions = null;
+		Set<Entity> entitystocontrol = getEntitys();
+		double mintimetocollision = Double.POSITIVE_INFINITY; 
+		for (Entity entity1: getEntitys()) {
+			if (entity1.timeToBoundaryCollision() < mintimetocollision){
+				mintimetocollision= entity1.timeToBoundaryCollision();
+				collisions.clear();
+				collisions.add(entity1);
+			}
+			entitystocontrol.remove(entity1);
+			for (Entity entity2: entitystocontrol){
+				double timetocollision = entity1.getTimeToCollision(entity1,entity2);
+				if (timetocollision < mintimetocollision){
+					mintimetocollision = timetocollision;
+					collisions.clear();
+					collisions.add(entity1);
+					collisions.add(entity2);
+				}
+			}
+		}
+		return collisions;
+	}
+	
 	private boolean isValidTime(double time){
 		if (time < 0)
 			return false;
@@ -129,8 +166,14 @@ public class World {
 	public void collisionBetweenBulletBullet(Bullet bullet1,Bullet bullet2){
 		bullets.remove(bullet1);
 		bullets.remove(bullet2);
-		//bullet1 = null;
-		//bullet2 = null;
+	}
+	
+	public void collisionBetweenShipShip(Ship ship1, Ship ship2){
+		double J = (2*ship1.getMass*ship2.getMass*ship1.deltaPosition(ship1,ship2)*ship1.deltaSpeed(ship1,ship2))/(ship1.getDensity*(ship1.getMass*ship2.getMass));
+		double Jx = (J*ship1.deltaX(ship1, ship2))/(ship1.getDensity);
+		double Jy = (J*ship1.deltaY(ship1, ship2))/(ship1.getDensity);
+		ship1.setSpeed(new double[] {ship1.getSpeed()[0] + Jx/ship1.getMass(), ship1.getSpeed()[1] + Jy/ship1.getMass()});
+		ship2.setSpeed(new double[] {ship2.getSpeed()[0] - Jx/ship2.getMass(), ship2.getSpeed()[1] - Jy/ship2.getMass()});
 	}
 	
 	public void collisionBetweenShipBullet(Ship ship,Bullet bullet){
@@ -143,17 +186,74 @@ public class World {
 		}
 	}
 	
-	public void collisionWithBulletBoundry(Bullet bullet){
-		if (bullet.residualbounces == 0){
-			bullets.remove(bullet);}
-		else{
-			bullet.substractBounce();
+	
+	public void collisionWithShipBoundry(Entity entity){
+		if((entity.positionBoundaryCollision()[0] - width) < (entity.positionBoundaryCollision()[1] - height)){
+			entity.setSpeed(new double[] {-entity.getSpeed()[0],entity.getSpeed()[1]});
 		}
-			
+		else{
+			entity.setSpeed(new double[] {entity.getSpeed()[0],-entity.getSpeed()[1]});
+		}
 	}
+	
+	
+	public void collisionWithBulletBoundry(Entity entity){
+		if (entity.residualbounces == 0){
+			bullets.remove(entity);}
+		else{
+			if((entity.positionBoundaryCollision()[0] - width) < (entity.positionBoundaryCollision()[1] - height)){
+				entity.setSpeed(new double[] {-entity.getSpeed()[0],entity.getSpeed()[1]});
+			}
+			else{
+				entity.setSpeed(new double[] {entity.getSpeed()[0],-entity.getSpeed()[1]});
+			}
+			entity.substractBounce();
+		}
+	}
+	
+    
+	public void collisionWithEntity(){
+		List<Entity> entities = getCollisions();
+		if(entities.size()==1){
+			if (isShipClass(entities.get(0))){
+				collisionWithShipBoundry(entities.get(0));
+			}
+			else{
+				collisionWithBulletBoundry(entities.get(0));
+			}
+		}
+		else{
+			if (isShipClass(entities.get(0)) || isShipClass(entities.get(1))){
+				if (isShipClass(entities.get(1)) && isShipClass(entities.get(0))){
+					collisionBetweenShipShip(entities.get(0),entities.get(1));
+				}
+				else{
+					collisionBetweenShipBullet(entities.get(0),entities.get(1));
+				}
+			}
+			else{
+				collisionBetweenBulletBullet(entities.get(0),entities.get(1));
+			}
+		}
+	}
+			
 	public void evolve(double time){
 		if (!(isValidTime(time))) throw new IllegalArgumentException("This given certain time isn't valid");
-		
+		double T = time;
+		double ready = 1;
+		while (ready != 0){
+			if ( getMinCollisionInWorld()<T){
+				collisionWithEntity();
+				T = T - getMinCollisionInWorld();
+			}
+			else{
+				ready = 0; 
+			}
+		}
+		for (Entity entity: getEntitys()){
+			entity.move(T);
+		}
 	}
 	
 }
+
