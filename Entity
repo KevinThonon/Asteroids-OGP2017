@@ -269,7 +269,7 @@ public class Entity {
 	 * 		the dot product of 2 vectors of length 2 (result is a single value)
 	 */
 	
-	public double dotProduct(double[] vector1, double[] vector2) {
+	public static double dotProduct(double[] vector1, double[] vector2) {
 		return ((vector1[0] * vector2[0]) + (vector1[1] * vector2[1]));
 	}
 	
@@ -353,21 +353,6 @@ public class Entity {
 	 */
 	public boolean isValidDuration(double duration){
 		return duration >= 0;
-	}
-	
-	/**
-	 * Sets the new position after a certain duration.
-	 * @param duration
-	 * 			The given duration.
-	 * @throws IllegalArgumentException
-	 * 			If the duration isn't valid.
-	 * defensief programmeren
-	 * @post toevoegen, wat is er gebeurd?
-	 */
-	public void move(double duration) throws IllegalArgumentException{
-		if (!isValidDuration(duration)) throw new IllegalArgumentException();
-		double[] newposition = {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration};
-		setPosition(newposition);
 	}
 	
 	public boolean significantOverlap(Entity entity1, Entity entity2){
