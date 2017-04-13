@@ -32,7 +32,7 @@ public class Ship extends Entity{
 	 * @throws IllegalArgumentException
 	 */
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
-			double orientation, double radius, double mass, double density) throws IllegalArgumentException {
+			double orientation, double radius) throws IllegalArgumentException {
 		super(xPosition,yPosition,xSpeed,ySpeed);
 		this.setRadius(radius);
 		this.setOrientation(orientation);
@@ -40,14 +40,10 @@ public class Ship extends Entity{
 		this.setDensity(density);
 	}
 	
-	//-Can mass and density be variables of the ship? If so, do we have to change it in the facade?
 	//-Do we have to be able to remove a Ship or bullet from a world? (this isn't asked in the assignment)
-	//-How can we know if an entity is a ship or a bullet (needed for the collisions)?
-	//-In the task they say next to the ship, do they mean in front of, and what if the ship is going
-	//faster than the initial speed of the bullet? Does the bullet have to go 250 faster than the speed of the ship?
-	//-When a bullet belongs to a ship, do we have to see it on screen (then we would have to write functions about
-	//the movement of the bullets. Or is it enough if the ship only stocks this bullet (then the part about the center
-	//of the bullet is unnecessary in the assignment)
+	// YES, just remove, not destroy
+	
+	//@
 	
 	private double radius;
 	private double orientation;
@@ -226,13 +222,13 @@ public class Ship extends Entity{
 		Bullet firedBullet = this.getBullets().iterator().next();
 		double bulletXPosition = this.getPosition()[0] + (this.getRadius()+firedBullet.getRadius()) * Math.cos(this.getOrientation());
 		double bulletYPosition = this.getPosition()[1] + (this.getRadius()+firedBullet.getRadius()) * Math.sin(this.getOrientation());
-		double bulletXSpeed = 250 * Math.cos(this.getOrientation());
-		double bulletYSpeed = 250 * Math.sin(this.getOrientation());
+		double bulletXSpeed = 250 * Math.cos(this.getOrientation()) + this.getSpeed()[0];
+		double bulletYSpeed = 250 * Math.sin(this.getOrientation()) + this.getSpeed()[1];
 		firedBullet.setPosition(new double[] {bulletXPosition,bulletYPosition});
 		if ((firedBullet.getPosition()[0] + firedBullet.getRadius() > this.getWorld().width) ||
-				(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0) ||
-				(firedBullet.getPosition()[1] + firedBullet.getRadius() > this.getWorld().height) ||
-				(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0))
+			(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0) ||
+			(firedBullet.getPosition()[1] + firedBullet.getRadius() > this.getWorld().height) ||
+			(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0))
 			removeBullet(firedBullet);
 		else
 			firedBullet.setSpeed(new double[] {bulletXSpeed,bulletYSpeed});
@@ -281,9 +277,16 @@ public class Ship extends Entity{
 	 * @post toevoegen, wat is er gebeurd?
 	 */
 	public void move(double duration) throws IllegalArgumentException{
-		assert (isValidDuration(duration));
-		double[] newposition = {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration};
-		setPosition(newposition);
+		if (!(isValidDuration(duration)))
+			throw new IllegalArgumentException();
+		if (!isThrusterActive())
+			this.setPosition(new double[] {(this.getPosition()[0] + this.getSpeed()[0]*duration),
+					(this.getPosition()[1] + this.getSpeed()[1]*duration)});
+		else
+			this.setPosition(new double[] {this.getPosition()[0] + this.getSpeed()[0]*duration + 
+					this.getAcceleration()*Math.cos(this.getOrientation())/2*Math.pow(duration, 2),
+					this.getPosition()[1] + this.getSpeed()[1]*duration + 
+					this.getAcceleration()*Math.sin(this.getOrientation())/2*Math.pow(duration, 2)});
 	}
 	
 	private boolean thrusterActive = false;
