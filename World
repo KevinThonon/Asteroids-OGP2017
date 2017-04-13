@@ -29,20 +29,25 @@ public class World {
 	}
 	
 	public double getWidth(){
-		return width;
+		return this.width;
 	}
 	
 	public double getHeigth(){
-		return height;
+		return this.height;
 	}
+	
+	public double[] getWorldSize(){
+		return new double[] {getWidth(),getHeigth()};
+	}
+	
 	public Set<Ship> getShips(){
-		return ships;
+		return this.ships;
 	}
 	
 	private Set<Ship> ships = new HashSet<Ship>();
 	
 	public Set<Bullet> getBullets(){
-		return bullets;
+		return this.bullets;
 	}
 	
 	
@@ -71,13 +76,13 @@ public class World {
 	
 	public void addShip(Ship ship) {
 		if (!canHaveAsShip(ship)) throw new IllegalArgumentException("The world can't have this ship.");
-		ships.add(ship);
+		this.ships.add(ship);
 		ship.setWorld(this);
 	}
 	
 	public void removeShip(Ship ship) {
 		if (ship.getWorld() != this) throw new IllegalArgumentException("This ship isn't in this world.");
-		ships.remove(ship);
+		this.ships.remove(ship);
 		ship.setWorld(null);
 	}
 	
@@ -95,13 +100,13 @@ public class World {
 	
 	public void addBullet(Bullet bullet) {
 		if (!canHaveAsBullet(bullet)) throw new IllegalArgumentException("The world can't have this bullet.");
-		bullets.add(bullet);
+		this.bullets.add(bullet);
 		bullet.setWorld (this);
 	}
 	
 	public void removeBullet(Bullet bullet) {
 		if (bullet.getWorld() != this) throw new IllegalArgumentException("This bullet isn't in this world");
-		bullets.remove(bullet);
+		this.bullets.remove(bullet);
 		bullet.setWorld(null);
 	}
 	
@@ -135,6 +140,7 @@ public class World {
     	return false;
     }
 	
+	@SuppressWarnings("null")
 	public List<Entity> getCollisions(){
 		List<Entity> collisions = null;
 		Set<Entity> entitystocontrol = getEntitys();
@@ -171,12 +177,12 @@ public class World {
 	}
 	
 	public void collisionBetweenBulletBullet(Bullet bullet1,Bullet bullet2){
-		bullets.remove(bullet1);
-		bullets.remove(bullet2);
+		this.bullets.remove(bullet1);
+		this.bullets.remove(bullet2);
 	}
 	
 	public void collisionBetweenShipShip(Ship ship1, Ship ship2){
-		double J = 2*(ship1.getMass())*(ship2.getMass())*ship1.dotProduct(ship1.deltaPosition(ship1, ship2),ship1.deltaSpeed(ship1, ship2))
+		double J = 2*(ship1.getMass())*(ship2.getMass())*Entity.dotProduct(ship1.deltaPosition(ship1, ship2),ship1.deltaSpeed(ship1, ship2))
 				/(ship1.getDensity()*(ship1.getMass()*ship2.getMass()));
 		double Jx = (J*ship1.deltaX(ship1, ship2))/(ship1.getDensity());
 		double Jy = (J*ship1.deltaY(ship1, ship2))/(ship1.getDensity());
@@ -189,14 +195,14 @@ public class World {
 			//the bullet is reloaded on the ship, with its position equal to the centre of the ship.
 		}
 		else{
-			bullets.remove(bullet);
-			ships.remove(ship);
+			this.bullets.remove(bullet);
+			this.ships.remove(ship);
 		}
 	}
 	
 	
 	public void collisionWithShipBoundry(Ship ship){
-		if((ship.positionBoundaryCollision()[0] - width) < (ship.positionBoundaryCollision()[1] - height)){
+		if((ship.positionBoundaryCollision()[0] - this.width) < (ship.positionBoundaryCollision()[1] - this.height)){
 			ship.setSpeed(new double[] {-ship.getSpeed()[0],ship.getSpeed()[1]});
 		}
 		else{
@@ -209,7 +215,7 @@ public class World {
 		if (bullet.residualbounces == 0){
 			bullets.remove(bullet);}
 		else{
-			if((bullet.positionBoundaryCollision()[0] - width) < (bullet.positionBoundaryCollision()[1] - height)){
+			if((bullet.positionBoundaryCollision()[0] - this.width) < (bullet.positionBoundaryCollision()[1] - this.height)){
 				bullet.setSpeed(new double[] {-bullet.getSpeed()[0],bullet.getSpeed()[1]});
 			}
 			else{
@@ -276,16 +282,39 @@ public class World {
 		for (Entity entity: entities){
 			entity.setWorld(null);
 			}
-		entitys.clear();
-		bullets.clear();
-		ships.clear();
+		this.entitys.clear();
+		this.bullets.clear();
+		this.ships.clear();
 		}
 	
 	public boolean isDestoyedWorld(){
 		if (bullets.size()==0 && ships.size()==0)
 			return true;
 		return false;
+	}
 		
+	public Entity getEntityAt(double x , double y){
+		double[] position = {x,y};
+		Set<Entity> allentities = getEntitys();
+		for (Entity entity : allentities){
+			if (entity.getPosition() == position)
+				return entity;
+		}
+		return null;
 	}
 	
+	public double [] getPositionNextCollision(){
+		List<Entity> entities = this.getCollisions();
+		Entity entity = entities.get(0);
+		if (entities.size()==1){
+			return entity.positionBoundaryCollision();
+		}
+		else{
+			return entity.getCollisionPosition(entity, entities.get(1));
+		}
+			
+		
+	}
+		
 }
+	
