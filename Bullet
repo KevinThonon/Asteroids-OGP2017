@@ -6,8 +6,12 @@ public class Bullet extends Entity{
 			throws IllegalArgumentException {
 		super(xPosition, yPosition, xSpeed, ySpeed);
 		this.setRadius(radius);
+		this.setWorld(world);
+		this.setShip(ship);
+		this.setSource(ship);
 	}
 	
+	public World world;
 	private double radius;
 	
 	/**
@@ -37,6 +41,14 @@ public class Bullet extends Entity{
 		return (4/3)*Math.PI*Math.pow(getRadius(), 3)*density;
 	}
 	
+	public World getWorld(){
+		return this.world;
+	}
+	
+	public void setWorld(World world){
+		this.world = world;
+	}
+	
 	public Ship getSource() {
 		return this.source;
 	}
@@ -57,7 +69,7 @@ public class Bullet extends Entity{
 		residualbounces = residualbounces - 1;
 	}
 	
-	private Ship ship;
+	public Ship ship;
 	
 	public void setShip(Ship ship) {
 		this.ship = ship;
@@ -66,5 +78,21 @@ public class Bullet extends Entity{
 	public Ship getShip() {
 		return this.ship;
 	}
+	
+	public double[] getBulletPosition(){
+		if (this.getShip() == null)
+			return this.getPosition();
+		else
+			return this.getShip().getPosition();
+	}
+	
+	public double[] getBulletSpeed(){
+		if (this.getShip() == null)
+			return this.getSpeed();
+		else
+			return this.getShip().getSpeed();
+	}
+	
+	
 	
 }
