@@ -263,8 +263,11 @@ public class World {
 				ready = 0; 
 			}
 		}
-		for (Entity entity: getEntitys()){
-			entity.move(T);
+		for (Bullet bullet: getBullets()){
+			bullet.move(T);
+		}
+		for (Ship ship: getShips()){
+			ship.move(T);
 		}
 	}
 	
@@ -286,5 +289,3 @@ public class World {
 	}
 	
 }
-
-
