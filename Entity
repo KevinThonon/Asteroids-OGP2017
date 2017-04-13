@@ -3,10 +3,9 @@ package asteroids.model;
 public class Entity {
 	
 	protected Entity(double xPosition, double yPosition, double xSpeed,
-			double ySpeed, double radius) throws IllegalArgumentException {
+			double ySpeed) throws IllegalArgumentException {
 		this.setPosition(new double[] {xPosition,yPosition});
 		this.setSpeed(new double[] {xSpeed,ySpeed});
-		this.setRadius(radius);
 	}
 	
 	private double xPosition;
@@ -105,19 +104,6 @@ public class Entity {
 	 */
 	public double getRadius(){
 		return radius;
-	}
-	
-	/**
-	 * Sets the radius of the ship to the given radius.
-	 * @param radius
-	 * 			The radius of the ship.
-	 * @throws IllegalArgumentException
-	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
-	 */
-	protected void setRadius(double radius) throws IllegalArgumentException{
-		if ((radius < 10) || (radius > Double.POSITIVE_INFINITY)) 
-			throw new IllegalArgumentException();
-		this.radius = radius;
 	}
 	
 	public boolean isValidEntity(Entity entity) throws IllegalArgumentException{
