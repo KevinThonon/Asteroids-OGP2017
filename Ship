@@ -6,6 +6,7 @@
 
 package asteroids.model;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class Ship extends Entity{
 	 * @throws IllegalArgumentException
 	 */
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
-			double orientation, double radius) throws IllegalArgumentException {
+			double orientation, double radius,double mass) throws IllegalArgumentException {
 		super(xPosition,yPosition,xSpeed,ySpeed);
 		this.setRadius(radius);
 		this.setOrientation(orientation);
@@ -190,8 +191,8 @@ public class Ship extends Entity{
 			bullet.setPosition(this.getPosition());
 	}
 	
-	public void addBullets(Bullet...bullets){
-		for (Bullet bullet : bullets)
+	public void addBullets(Collection<Bullet>bullets2){
+		for (Bullet bullet : bullets2)
 			if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
 			else
 				this.addBullet(bullet);
@@ -291,16 +292,16 @@ public class Ship extends Entity{
 	
 	private boolean thrusterActive = false;
 	
-	private boolean isThrusterActive(){
+	public boolean isThrusterActive(){
 		return thrusterActive;
 	}
 	
-	private void thrustOn(){
+	public void thrustOn(){
 		thrusterActive = true;
 		this.thrust(this.getAcceleration());
 	}
 	
-	private void thrustOff(){
+	public void thrustOff(){
 		thrusterActive = false;
 		this.thrust(this.getAcceleration());
 	}
@@ -330,4 +331,14 @@ public class Ship extends Entity{
 			setSpeed(newspeed);
 	}
 	
+	public void terminateShip(){
+		this.setWorld(null);
+	}
+	
+	public boolean isTerminatedShip(){
+		if (this.getWorld() == null){
+			return true;
+		}
+		return false;
+	}
 }
