@@ -6,7 +6,10 @@
 
 package asteroids.model;
 
-public class Ship {
+import java.util.HashSet;
+import java.util.Set;
+
+public class Ship extends Entity{
 	
 	/**Create a ship with a given position (x,y), given speed (vx,vy), 
 	 * given orientation and given radius. 
@@ -29,104 +32,48 @@ public class Ship {
 	 * @throws IllegalArgumentException
 	 */
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
-			double orientation, double radius) throws IllegalArgumentException {
-		this.setPosition(new double[] {xPosition,yPosition});
-		this.setSpeed(new double[] {xSpeed,ySpeed});
-		this.setOrientation(orientation);
+			double orientation, double radius, double mass, double density) throws IllegalArgumentException {
+		super(xPosition,yPosition,xSpeed,ySpeed);
 		this.setRadius(radius);
+		this.setOrientation(orientation);
+		this.setMass(mass);
+		this.setDensity(density);
 	}
 	
-	private double xPosition;
-	private double yPosition;
-	private double xSpeed;
-	private double ySpeed;
-	private double orientation;
+	//-Can mass and density be variables of the ship? If so, do we have to change it in the facade?
+	//-Do we have to be able to remove a Ship or bullet from a world? (this isn't asked in the assignment)
+	//-How can we know if an entity is a ship or a bullet (needed for the collisions)?
+	//-In the task they say next to the ship, do they mean in front of, and what if the ship is going
+	//faster than the initial speed of the bullet? Does the bullet have to go 250 faster than the speed of the ship?
+	//-When a bullet belongs to a ship, do we have to see it on screen (then we would have to write functions about
+	//the movement of the bullets. Or is it enough if the ship only stocks this bullet (then the part about the center
+	//of the bullet is unnecessary in the assignment)
+	
 	private double radius;
+	private double orientation;
+	private double mass;
+	private double density;
 	
 	/**
-	 * It returns an array of length 2, at index 0 you find the x-coordinate 
-	 * and at index 1 you find the y-coordinate.
-	 * @return The position of the ship.
+	 * It returns the radius of the ship.
+	 * @return the radius of the ship.
 	 */
-	
-	/**
-	 * @basic info over toestand van schip
-	 * @return
-	 */
-	public double[] getPosition(){
-		return this.position;
+	public double getRadius(){
+		return radius;
 	}
 	
 	/**
-	 * Set the position of the ship to the given position.
-	 * @param position
-	 * 			x- and y-coordinate of the position.
-	 * @post The given position is set as the new position of the new ship.
+	 * Sets the radius of the ship to the given radius.
+	 * @param radius
+	 * 			The radius of the ship.
 	 * @throws IllegalArgumentException
-	 * 			The given position isn't valid if the coordinates of 
-	 * 			the position aren't greater than Positive infinity and smaller than negative infinity.
-	 * 			If the position is NaN. 
-	 * 			The given position isn't valid if position isn't an array of length 2.
-	 * 
-	 * IsValid erbij zetten
-	 * Van array 2 variabelen maken
-	 * Bij setters @raw omdat vaak fout
+	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
 	 */
-	private void setPosition(double[] position) throws IllegalArgumentException{
-		if ((xPosition < Double.NEGATIVE_INFINITY) || (xPosition > Double.POSITIVE_INFINITY) 
-				|| (yPosition < Double.NEGATIVE_INFINITY) || (yPosition > Double.POSITIVE_INFINITY)
-				|| (xPosition == Double.NaN) || (yPosition == Double.NaN)) 
+	protected void setRadius(double radius) throws IllegalArgumentException{
+		if ((radius < 10) || (radius > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
-		if (position.length != 2) throw new IllegalArgumentException();
-		this.position = position;
+		this.radius = radius;
 	}
-	/**
-	 * Double array vervangen in vector/value klasse
-	 */
-	private double[] position = new double[2];
-	
-	private double[] speed = new double[2];
-	
-	/**
-	 * It returns an array of length 2, at index 0 you find the speed of the x-coordinate
-	 * and at index 1 you find the speed of the y-coordinate.
-	 * @return The speed of the ship.
-	 */
-	public double[] getSpeed(){
-		return this.speed;
-	}
-	
-	private double reducer;
-	
-	/**
-	 * @param speed
-	 * 			The speed of the x-coordinate and the speed of the y-coordinate of the ship.
-	 * @post If the speed of the x-coordinate is NaN, it turns into zero.
-	 * 		 info bijgeven als er een nieuw schip wordt gemaakt
-	 * @post If the speed of the y-coordinate is NaN, it turns into zero.
-	 * @post If the given speed is equal or smaller then the speed of light, 
-	 * the speed of the ship will be the given speed of the ship.
-	 * @post If the given speed is faster than the speed of light, the new speed will be in the same direction as the
-	 * given speed, but the speed will be the speed of light.
-	 * formeel & informele info
-	 * 
-	 * isValid bijmaken
-	 */
-	public void setSpeed (double[] speed) {
-		if (xSpeed == Double.NaN)
-			xSpeed=0;
-		if (ySpeed == Double.NaN)
-			ySpeed=0;
-		if (Math.sqrt(Math.pow( xSpeed , 2) + Math.pow(ySpeed, 2) ) <= MaxSpeed)
-			this.speed = speed;
-		else
-			reducer = (Math.pow(xSpeed,2) + Math.pow(ySpeed, 2)) / MaxSpeed;
-			xSpeed /= reducer;
-			ySpeed /= reducer;
-			this.speed = speed;	
-	}
-	
-	private final static int MaxSpeed = 300000;
 	
 	/**
 	 * It returns the direction that the new ship is facing expressed as an angle in radians.
@@ -188,25 +135,109 @@ public class Ship {
 	
 	private double newTemporaryOrientation;
 	
-	/**
-	 * It returns the orientation the radius of the ship.
-	 * @return the radius of the ship.
-	 */
-	public double getRadius(){
-		return this.radius;
+	private final static double minimalDensity = 1.42 * Math.pow(10, 12);
+	
+	public double getDensity(){
+		return this.density;
 	}
 	
-	/**
-	 * Sets the radius of the ship to the given radius.
-	 * @param radius
-	 * 			The radius of the ship.
-	 * @throws IllegalArgumentException
-	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
-	 */
-	public void setRadius(double radius) throws IllegalArgumentException{
-		if ((radius < 10) || (radius > Double.POSITIVE_INFINITY)) 
-			throw new IllegalArgumentException();
-		this.radius = radius;
+	private void setDensity(double density){
+		if (density < minimalDensity)
+			this.density = minimalDensity;
+		else
+			this.density = density;
+	}
+	
+	public double totalBulletsMass(){
+		double totalMass = 0;
+		for (Bullet bullet : this.getBullets())
+			totalMass += bullet.getMass();
+		return totalMass;
+	}
+	
+	public double getMass(){
+		return (this.mass + this.totalBulletsMass());
+	}
+	
+	private void setMass(double mass){
+		double minimalMass = 4/3 * Math.PI * Math.pow(this.getRadius(),3)* minimalDensity;
+		if (mass < minimalMass)
+			this.mass = minimalMass;
+		else 
+			this.mass = mass;
+	}
+	
+	public Set<Bullet> getBullets() {
+		return this.bullets;
+	}
+
+	public Set<Bullet> bullets = new HashSet<Bullet>();
+
+	public boolean isValidBullet(Bullet bullet){
+		if (bullet == null)
+			return false;
+		if (bullet.getShip() != null && bullet.getShip() != this)
+			return false;
+		if (bullet.getSource() != null && bullet.getSource() != this)
+			return false;
+		else
+			return true;
+	}
+	
+	public void addBullet(Bullet bullet){
+		if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
+		bullets.add(bullet);
+		if (bullet.getWorld() != null)
+			bullet.getWorld().removeBullet(bullet);
+		else
+			bullet.setShip(this);
+			bullet.setPosition(this.getPosition());
+	}
+	
+	public void addBullets(Bullet...bullets){
+		for (Bullet bullet : bullets)
+			if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
+			else
+				this.addBullet(bullet);
+	}
+	
+	public void removeBullet(Bullet bullet){
+		if (bullet.getShip() != this) throw new IllegalArgumentException();
+		else
+			bullet.getWorld().removeBullet(bullet);
+	}
+	
+	public void removeBullets(Bullet... bullets){
+		for (Bullet bullet : bullets)
+			if (bullet.getShip() != this) throw new IllegalArgumentException();
+			else
+				bullet.getWorld().removeBullet(bullet);
+	}
+	
+	public int getNumberOfBullets(){
+		return bullets.size();
+	}
+	
+	public void fireBullet(){
+		if (this.getWorld() == null)
+			return;
+		if (this.getNumberOfBullets() == 0)
+			return;
+		Bullet firedBullet = this.getBullets().iterator().next();
+		double bulletXPosition = this.getPosition()[0] + (this.getRadius()+firedBullet.getRadius()) * Math.cos(this.getOrientation());
+		double bulletYPosition = this.getPosition()[1] + (this.getRadius()+firedBullet.getRadius()) * Math.sin(this.getOrientation());
+		double bulletXSpeed = 250 * Math.cos(this.getOrientation());
+		double bulletYSpeed = 250 * Math.sin(this.getOrientation());
+		firedBullet.setPosition(new double[] {bulletXPosition,bulletYPosition});
+		if ((firedBullet.getPosition()[0] + firedBullet.getRadius() > this.getWorld().width) ||
+				(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0) ||
+				(firedBullet.getPosition()[1] + firedBullet.getRadius() > this.getWorld().height) ||
+				(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0))
+			removeBullet(firedBullet);
+		else
+			firedBullet.setSpeed(new double[] {bulletXSpeed,bulletYSpeed});
+			firedBullet.setSource(this);
+			this.removeBullet(firedBullet);
 	}
 	
 	/**
@@ -217,246 +248,17 @@ public class Ship {
 	 * @throws IllegalArgumentException
 	 * 			It isn't a valid ship.
 	 */
-	public boolean isValidShip(Ship ship) throws IllegalArgumentException{
-		if (((ship.xPosition) < Double.NEGATIVE_INFINITY) || ((ship.xPosition) > Double.POSITIVE_INFINITY))
+	public boolean isValidShip() throws IllegalArgumentException{
+		if (((this.getPosition()[0]) < Double.NEGATIVE_INFINITY) || ((this.getPosition()[0]) > Double.POSITIVE_INFINITY))
 			throw new IllegalArgumentException();
-		if (((ship.yPosition) < Double.NEGATIVE_INFINITY) || ((ship.yPosition) > Double.POSITIVE_INFINITY))
+		if (((this.getPosition()[1]) < Double.NEGATIVE_INFINITY) || ((this.getPosition()[1]) > Double.POSITIVE_INFINITY))
 			throw new IllegalArgumentException();
-		if (((ship.radius) < 10000) || ((ship.radius) > Double.POSITIVE_INFINITY))
+		if (((this.getRadius()) < 10000) || ((this.getRadius()) > Double.POSITIVE_INFINITY))
 			throw new IllegalArgumentException();
-		if (((ship.orientation) < 0) || ((ship.orientation) > 2*Math.PI))
+		if (((this.orientation) < 0) || ((this.orientation) > 2*Math.PI))
 			throw new IllegalArgumentException();
 		else
 			return true;
-	}
-	
-	/**
-	 * It returns the distance between two given ships.
-	 * @param ship1
-	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
-	 * @param ship2
-	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
-	 * @return The distance between ship1 and ship2. 
-	 * 			Meer info toevoegen
-	 * @return Same als het over hetzelfde gaat
-	 * @throws IllegalArgumentException
-	 * 			If ship1 or/and ship2 aren't valid.
-	 */
-	public double getDistanceBetween(Ship ship1, Ship ship2) throws IllegalArgumentException{
-		if (isValidShip(ship1) == false)
-			throw new IllegalArgumentException();
-		if (isValidShip(ship2) == false)
-			throw new IllegalArgumentException();
-		return Math.sqrt(Math.pow(ship1.xPosition - ship2.xPosition, 2) + Math.pow(ship1.yPosition - ship2.yPosition, 2)) - ship1.radius - ship2.radius; 
-	}
-	
-	/**
-	 * Returns a boolean type. Returns if the two given ships are at the same spot.
-	 * @param ship1
-	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
-	 * @param ship2
-	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
-	 * @return If ship1 and ship2 are at the same spot.
-	 * @throws IllegalArgumentException
-	 * 			If ship1 or/and ship2 aren't valid.
-	 */
-	public boolean overlap(Ship ship1, Ship ship2) throws IllegalArgumentException{
-		if (isValidShip(ship1) == false)
-			throw new IllegalArgumentException();
-		if (isValidShip(ship2) == false)
-			throw new IllegalArgumentException();
-		if (ship1 == ship2)
-			return true;
-		else 
-			if (getDistanceBetween(ship1, ship2) < 0)
-				return true;
-			else 
-				return false;
-	}
-	
-	/**
-	 * When the ships collide the distance between the centres is equal to the sum of both radiuses
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The sum of both radiuses
-	 */
-	
-	private double distanceBetweenCentersAtCollision(Ship ship1, Ship ship2){
-		return ship1.getRadius() + ship2.getRadius();
-	}
-	
-	/**
-	 * The difference between the x-coordinates of both ships
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The difference between both x-coordinates
-	 */
-	
-	private double deltaX(Ship ship1, Ship ship2){
-		return ship1.xPosition - ship2.xPosition;
-	}
-	
-	/**
-	 * The difference between the y-coordinates of both ships
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The difference between both y-coordinates
-	 */
-	
-	private double deltaY(Ship ship1, Ship ship2){
-		return ship1.yPosition - ship2.yPosition;
-	}
-	
-	/**
-	 * The difference between the x-coordinates and y-coordinates of both ships
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The difference between both x-coordinates and y-coordinates
-	 */
-	
-	private double[] deltaPosition(Ship ship1, Ship ship2){
-		return new double[]{ship1.deltaX(ship1, ship2),ship1.deltaY(ship1, ship2)};
-	}
-	
-	/**
-	 * The difference between the speed in x-direction of both ships
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The difference between both speeds in x-direction
-	 */
-	
-	private double deltaVX(Ship ship1, Ship ship2){
-		return ship1.xSpeed - ship2.xSpeed;
-	}
-	
-	/**
-	 * The difference between the speed in y-direction of both ships
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The difference between both speeds in y-direction
-	 */
-	
-	private double deltaVY(Ship ship1, Ship ship2){
-		return ship1.ySpeed - ship2.ySpeed;
-	}
-	
-	/**
-	 * The difference between the speed in x-direction and y-direction of both ships
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The difference between both speeds in x-direction and y-direction
-	 */
-	
-	private double[] deltaSpeed(Ship ship1, Ship ship2){
-		return new double[]{ship1.deltaVX(ship1, ship2),ship1.deltaVY(ship1, ship2)};
-	}
-	
-	/**
-	 * This function gives a double which is the sum of the product of the first number from the first vector and the 
-	 * first number from the second vector and the product of the second number of the first vector and the second number of the second vector
-	 * @param vector1
-	 * 		The first vector of length 2
-	 * @param vector2
-	 * 		The second vector of length 2
-	 * @return
-	 * 		the dot product of 2 vectors of length 2 (result is a single value)
-	 */
-	
-	private static double dotProduct(double[] vector1, double[] vector2) {
-		return ((vector1[0] * vector2[0]) + (vector1[1] * vector2[1]));
-	}
-	
-	/**
-	 * This function registers a certain value that is used in the collision function, if it is negative,
-	 * the ships will never collide, if it is positive they will collide
-	 * @param ship1
-	 * 		First ship
-	 * @param ship2
-	 * 		Second ship
-	 * @return
-	 * 		The value d
-	 */
-	
-	private double d(Ship ship1, Ship ship2){
-		return Math.pow(dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaPosition(ship1, ship2)), 2) - 
-				(dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaSpeed(ship1, ship2))) * (dotProduct(ship1.deltaPosition(ship1, ship2),ship1.deltaPosition(ship1, ship2))
-				- Math.pow(ship1.distanceBetweenCentersAtCollision(ship1, ship2), 2));
-	}
-	
-	/**
-	 * This method will give at what time in the future 2 ships would collide if they were to continue forward without changing direction
-	 * or accelerating/slow down
-	 * @param ship1
-	 * 		The first ship of the 2 ships we are comparing
-	 * @param ship2
-	 * 		The second ship of the 2 ships we are comparing
-	 * @return
-	 * 		If the ships never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
-	 * 		If they would collapse the function will return a duration described as a double
-	 * 		Formeel & informeel
-	 * @return Als ze botsen of juist niet
-	 * @throws IllegalArgumentException
-	 * 		If one or both of the ships are not valid ships then the function will give an error
-	 */
-	
-	public double getTimeToCollision(Ship ship1, Ship ship2) throws IllegalArgumentException{
-		if (isValidShip(ship1) == false)
-			throw new IllegalArgumentException();
-		if (isValidShip(ship2) == false)
-			throw new IllegalArgumentException();
-		if ((dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaPosition(ship1, ship2))) > 0)
-			return Double.POSITIVE_INFINITY;
-		if ((ship1.d(ship1, ship2)) < 0)
-			return Double.POSITIVE_INFINITY;
-		else
-			return (-(dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaPosition(ship1, ship2)) + Math.sqrt(ship1.d(ship1, ship2)))
-					/ dotProduct(ship1.deltaSpeed(ship1, ship2),ship1.deltaSpeed(ship1, ship2)));
-	}
-	
-	/**
-	 * This function will return the centre of the first ship at the time of collision
-	 * @param ship1
-	 * 		The first ship
-	 * @param ship2
-	 * 		The second ship
-	 * @return
-	 * 		The position of the centre of the first ship
-	 * @throws IllegalArgumentException
-	 * 		If the ships are not valid ships or if they already overlap the function will give an error
-	 */
-	
-	public double[] getCollisionPosition(Ship ship1, Ship ship2) throws IllegalArgumentException{
-		if (isValidShip(ship1) == false)
-			throw new IllegalArgumentException();
-		if (isValidShip(ship2) == false)
-			throw new IllegalArgumentException();
-		if (ship1.overlap(ship1, ship2))
-			throw new IllegalArgumentException();
-		if (getTimeToCollision(ship1, ship2) == Double.POSITIVE_INFINITY)
-			return null;
-		else
-			return new double[] {ship1.xPosition + ship1.xSpeed*getTimeToCollision(ship1, ship2),ship1.yPosition + ship1.ySpeed*getTimeToCollision(ship1, ship2)};
 	}
 	
 	/**
@@ -484,6 +286,31 @@ public class Ship {
 		setPosition(newposition);
 	}
 	
+	private boolean thrusterActive = false;
+	
+	private boolean isThrusterActive(){
+		return thrusterActive;
+	}
+	
+	private void thrustOn(){
+		thrusterActive = true;
+		this.thrust(this.getAcceleration());
+	}
+	
+	private void thrustOff(){
+		thrusterActive = false;
+		this.thrust(this.getAcceleration());
+	}
+	
+	
+	public double getAcceleration() {
+		if (!thrusterActive)
+			return 0;
+		double force = 1.1*Math.pow(10, 21);
+		double acceleration = force/this.getMass();
+		return acceleration;
+	}
+	
 	/**
 	 * It changes the speed of the ship but the orientation remains the same.
 	 * @param a
@@ -493,10 +320,11 @@ public class Ship {
 	 * 
 	 */
 	public void thrust(double a) {
-		if (a < 0)
-			a = 0;
-		double[] newspeed = {this.getSpeed()[0] + a*Math.cos(this.getOrientation()) , this.getSpeed()[1] + a*Math.sin(this.getOrientation())};
-		setSpeed(newspeed);
+		if (this.isThrusterActive())
+			if (a < 0)
+				a = 0;
+			double[] newspeed = {this.getSpeed()[0] + a*Math.cos(this.getOrientation()) , this.getSpeed()[1] + a*Math.sin(this.getOrientation())};
+			setSpeed(newspeed);
 	}
 	
 }
