@@ -4,7 +4,31 @@ public class Bullet extends Entity{
 
 	protected Bullet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
 			throws IllegalArgumentException {
-		super(xPosition, yPosition, xSpeed, ySpeed, radius);
+		super(xPosition, yPosition, xSpeed, ySpeed);
+		this.setRadius(radius);
+	}
+	
+	private double radius;
+	
+	/**
+	 * It returns the radius of the ship.
+	 * @return the radius of the ship.
+	 */
+	public double getRadius(){
+		return radius;
+	}
+	
+	/**
+	 * Sets the radius of the ship to the given radius.
+	 * @param radius
+	 * 			The radius of the ship.
+	 * @throws IllegalArgumentException
+	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
+	 */
+	protected void setRadius(double radius) throws IllegalArgumentException{
+		if ((radius < 1) || (radius > Double.POSITIVE_INFINITY)) 
+			throw new IllegalArgumentException();
+		this.radius = radius;
 	}
 	
 	private final static double density = 7.8*Math.pow(10, 2);
@@ -20,7 +44,7 @@ public class Bullet extends Entity{
 	public Ship source;
 	
 	public void setSource(Ship ship) {
-		this.source=ship;
+		this.source = ship;
 	}
 	
 	public double residualbounces = 2;
@@ -35,8 +59,8 @@ public class Bullet extends Entity{
 	
 	private Ship ship;
 	
-	public void setShip(Ship ship) { //veranderen klopt langs geen kanten
-		
+	public void setShip(Ship ship) {
+		this.ship = ship;
 	}
 	
 	public Ship getShip() {
