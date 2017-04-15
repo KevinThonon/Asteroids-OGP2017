@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import be.kuleuven.cs.som.annotate.*;
+
 public class Ship extends Entity{
 	
 	/**Create a ship with a given position (x,y), given speed (vx,vy), 
@@ -30,8 +32,9 @@ public class Ship extends Entity{
 	 * @post  The given speed is set as the new speed of the new ship.
 	 * @post  The given orientation is set as the new orientation of the new ship.
 	 * @post  The given radius is set as the new radius of the new ship.			
-	 * @throws IllegalArgumentException
+	 * @throws IllegalArgumentException if any value is unvalid
 	 */
+	@Raw
 	public Ship(double xPosition, double yPosition, double xSpeed, double ySpeed, 
 			double orientation, double radius,double mass) throws IllegalArgumentException {
 		super(xPosition,yPosition,xSpeed,ySpeed);
@@ -40,11 +43,6 @@ public class Ship extends Entity{
 		this.setMass(mass);
 		this.setDensity(density);
 	}
-	
-	//-Do we have to be able to remove a Ship or bullet from a world? (this isn't asked in the assignment)
-	// YES, just remove, not destroy
-	
-	//@
 	
 	private double radius;
 	private double orientation;
@@ -55,6 +53,7 @@ public class Ship extends Entity{
 	 * It returns the radius of the ship.
 	 * @return the radius of the ship.
 	 */
+	@Immutable
 	public double getRadius(){
 		return radius;
 	}
@@ -64,9 +63,10 @@ public class Ship extends Entity{
 	 * @param radius
 	 * 			The radius of the ship.
 	 * @throws IllegalArgumentException
-	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
+	 * 			Throws an error if provided radius is smaller than ten or greater than positive infinity.
 	 */
-	protected void setRadius(double radius) throws IllegalArgumentException{
+	@Immutable
+	public void setRadius(double radius) throws IllegalArgumentException{
 		if ((radius < 10) || (radius > Double.POSITIVE_INFINITY)) 
 			throw new IllegalArgumentException();
 		this.radius = radius;
@@ -85,12 +85,10 @@ public class Ship extends Entity{
 	 * @param orientation
 	 * 			An possible orientation for the ship.
 	 * @return	Returns the validity of an orientation for the ship.
-	 * 
-	 * NAN bijsteken
-	 * return ((orientation >=0) && (orientation < 2*Math.PI)); bijplakken
+	 *			|((orientation >=0) && (orientation < 2*Math.PI) && !(orientation == Double.NaN))
 	 */
 	public static boolean isValidOrientation(double orientation){
-		return ((orientation >=0) && (orientation < 2*Math.PI));
+		return ((orientation >=0) && (orientation < 2*Math.PI) && !(orientation == Double.NaN));
 	}
 	
 	/**
@@ -102,13 +100,14 @@ public class Ship extends Entity{
 	 * @throws IllegalArgumentException
 	 * 			The given orientation isn't valid.
 	 */
+	@Basic
 	public void setOrientation(double orientation) throws IllegalArgumentException{
 		assert(isValidOrientation(orientation));
 		this.orientation = orientation;
 	} 
 	
 	/**
-	 * 
+	 * Set the new orientation of a ship, in other words, turn the ship.
 	 * @param changeInOrientation
 	 * 			The angle of the difference in orientation between the position before change and after change.
 	 * @pre The current orientation is valid.
@@ -132,12 +131,26 @@ public class Ship extends Entity{
 	
 	private double newTemporaryOrientation;
 	
+	/**
+	 * The minimal density of a ship
+	 */
 	private final static double minimalDensity = 1.42 * Math.pow(10, 12);
 	
+	/**
+	 * Get the density of a ship
+	 * @return The density of this ship
+	 */
 	public double getDensity(){
 		return this.density;
 	}
 	
+	/**
+	 * Set the density of this ship
+	 * @param density
+	 * 		If the provided density is smaller than the minimal density, set the density of this ship to the minimal density
+	 * 		Otherwise the provided density will be the ships density
+	 */
+	@Immutable @Basic
 	private void setDensity(double density){
 		if (density < minimalDensity)
 			this.density = minimalDensity;
@@ -145,6 +158,13 @@ public class Ship extends Entity{
 			this.density = density;
 	}
 	
+	/**
+	 * Calculate the total mass of all the bullets currently belonging to this ship
+	 * @return The total mass of all this ship's bullets
+	 * 		|double totalMass = 0;
+			|for (Bullet bullet : this.getBullets())
+			|	totalMass += bullet.getMass();
+	 */
 	public double totalBulletsMass(){
 		double totalMass = 0;
 		for (Bullet bullet : this.getBullets())
@@ -152,10 +172,21 @@ public class Ship extends Entity{
 		return totalMass;
 	}
 	
+	/**
+	 * Get the total mass of this ship + its bullets
+	 * @return Total mass
+	 * 		|(this.mass + this.totalBulletsMass())
+	 */
 	public double getMass(){
 		return (this.mass + this.totalBulletsMass());
 	}
 	
+	/**
+	 * Set the mass of this ship, if the provided mass is smaller than the minimal mass, set the minimal mass as the ship mass
+	 * @param mass
+	 * 		The mass of the ship
+	 */
+	@Basic
 	private void setMass(double mass){
 		double minimalMass = 4/3 * Math.PI * Math.pow(this.getRadius(),3)* minimalDensity;
 		if (mass < minimalMass)
@@ -164,12 +195,31 @@ public class Ship extends Entity{
 			this.mass = mass;
 	}
 	
+	/**
+	 * Get all the bullets of this ship
+	 * @return
+	 * 		A set with all the bullets of this ship
+	 */
 	public Set<Bullet> getBullets() {
 		return this.bullets;
 	}
 
 	public Set<Bullet> bullets = new HashSet<Bullet>();
 
+	/**
+	 * Check whether the provided bullet is a valid bullet 
+	 * @param bullet
+	 * 		The bullet that is to be checked
+	 * @return A boolean stating if the bullet is valid or not
+	 * 		|if (bullet == null)
+	 *		|	return false;
+	 *		|if (bullet.getShip() != null && bullet.getShip() != this)
+	 *		|	return false;
+	 *		|if (bullet.getSource() != null && bullet.getSource() != this)
+	 *		|	return false;
+	 *		|else
+	 *		|	return true;
+	 */
 	public boolean isValidBullet(Bullet bullet){
 		if (bullet == null)
 			return false;
@@ -181,7 +231,14 @@ public class Ship extends Entity{
 			return true;
 	}
 	
-	public void addBullet(Bullet bullet){
+	/**
+	 * Add a single bullet to the ship
+	 * @param bullet
+	 * 		bullet to add
+	 * @throws IllegalArgumentException
+	 * 		If the provided bullet isn't valid throw an error
+	 */
+	public void addBullet(Bullet bullet) throws IllegalArgumentException{
 		if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
 		bullets.add(bullet);
 		if (bullet.getWorld() != null)
@@ -191,30 +248,72 @@ public class Ship extends Entity{
 			bullet.setPosition(this.getPosition());
 	}
 	
-	public void addBullets(Collection<Bullet>bullets2){
+	/**
+	 * Add a set of bullets to the ship
+	 * @param bullets2
+	 * 		The set of bullets to add
+	 * @throws IllegalArgumentException
+	 * 		If one of the provided bullets isn't valid throw an error
+	 */
+	public void addBullets(Collection<Bullet>bullets2) throws IllegalArgumentException{
 		for (Bullet bullet : bullets2)
 			if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
 			else
 				this.addBullet(bullet);
 	}
 	
-	public void removeBullet(Bullet bullet){
+	/**
+	 * Remove a bullet from this ship or this ships world
+	 * @param bullet
+	 * 		The bullet to remove
+	 * @throws IllegalArgumentException
+	 * 		If the provided bullet isn't valid throw an error
+	 */
+	public void removeBullet(Bullet bullet) throws IllegalArgumentException{
 		if (bullet.getShip() != this) throw new IllegalArgumentException();
 		else
 			bullet.getWorld().removeBullet(bullet);
 	}
 	
-	public void removeBullets(Bullet... bullets){
+	/**
+	 * Remove a set of bullets from this ship or this ships world
+	 * @param bullets
+	 * 		The set of bullets to remove
+	 * @throws IllegalArgumentException
+	 * 		If one of the bullets isn't valid throw an error
+	 */
+	public void removeBullets(Bullet... bullets) throws IllegalArgumentException{
 		for (Bullet bullet : bullets)
 			if (bullet.getShip() != this) throw new IllegalArgumentException();
 			else
 				bullet.getWorld().removeBullet(bullet);
 	}
 	
+	/**
+	 * Get the number of bullets of this ship
+	 * @return
+	 * 		The number of bullets
+	 */
 	public int getNumberOfBullets(){
 		return bullets.size();
 	}
 	
+	/**
+	 * Fire one of the ships bullets.
+	 * @post If the ship doesn't have any bullets left or is positioned in the world null, do nothing
+	 * 		 If the bullet that is to be fired is partially out of bounds, destroy it.
+	 * 			|if ((firedBullet.getPosition()[0] + firedBullet.getRadius() > this.getWorld().width) ||
+	 *			|	(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0) ||
+	 *			|	(firedBullet.getPosition()[1] + firedBullet.getRadius() > this.getWorld().height) ||
+	 *			|	(firedBullet.getPosition()[0] - firedBullet.getRadius() < 0))
+	 *			|	removeBullet(firedBullet);
+	 *		 If the bullet is totally in the world when it is fired from the ship, give it the same orientation as
+	 *		 the ship but give is speed that is 250 faster than the ships current speed. Also remove this bullet from
+	 *		 the ships bullets.
+	 *		  	|firedBullet.setSpeed(new double[] {bulletXSpeed,bulletYSpeed});
+	 *			|firedBullet.setSource(this);
+	 *			|this.removeBullet(firedBullet); 
+	 */
 	public void fireBullet(){
 		if (this.getWorld() == null)
 			return;
@@ -243,7 +342,7 @@ public class Ship extends Entity{
 	 * 			A ship with a given position (x,y), given speed (vx,vy), given orientation and given radius.
 	 * @return An boolean value true
 	 * @throws IllegalArgumentException
-	 * 			It isn't a valid ship.
+	 * 			It isn't a valid ship because either position, speed, orientation or radius is invalid.
 	 */
 	public boolean isValidShip() throws IllegalArgumentException{
 		if (((this.getPosition()[0]) < Double.NEGATIVE_INFINITY) || ((this.getPosition()[0]) > Double.POSITIVE_INFINITY))
@@ -262,7 +361,7 @@ public class Ship extends Entity{
 	 * Returns a boolean type. 
 	 * @param duration
 	 * 			The given duration.
-	 * @return It return if the duration is valid.
+	 * @return It returns true if the duration is valid.
 	 */
 	public boolean isValidDuration(double duration){
 		return duration >= 0;
@@ -274,8 +373,11 @@ public class Ship extends Entity{
 	 * 			The given duration.
 	 * @throws IllegalArgumentException
 	 * 			If the duration isn't valid.
-	 * defensief programmeren
-	 * @post toevoegen, wat is er gebeurd?
+	 * @post The ship moved to a new location based on its speed and acceleration
+	 * 		|this.setPosition(new double[] {this.getPosition()[0] + this.getSpeed()[0]*duration + 
+					this.getAcceleration()*Math.cos(this.getOrientation())/2*Math.pow(duration, 2),
+					this.getPosition()[1] + this.getSpeed()[1]*duration + 
+					this.getAcceleration()*Math.sin(this.getOrientation())/2*Math.pow(duration, 2)})
 	 */
 	public void move(double duration) throws IllegalArgumentException{
 		if (!(isValidDuration(duration)))
@@ -292,21 +394,38 @@ public class Ship extends Entity{
 	
 	private boolean thrusterActive = false;
 	
+	/**
+	 * Check whether the thruster is active
+	 * @return
+	 * 		A boolean that tells if the thruster is on or not
+	 */
 	public boolean isThrusterActive(){
 		return thrusterActive;
 	}
 	
+	/**
+	 * Set the thruster to on
+	 */
 	public void thrustOn(){
 		thrusterActive = true;
 		this.thrust(this.getAcceleration());
 	}
 	
+	/**
+	 * Set the thruster to off
+	 */
 	public void thrustOff(){
 		thrusterActive = false;
 		this.thrust(this.getAcceleration());
 	}
 	
-	
+	/**
+	 * Get the acceleration of this ship
+	 * @return
+	 * 		|double force = 1.1*Math.pow(10, 21);
+	 *		|double acceleration = force/this.getMass();
+	 *		|return acceleration;
+	 */
 	public double getAcceleration() {
 		if (!thrusterActive)
 			return 0;
@@ -320,9 +439,9 @@ public class Ship extends Entity{
 	 * @param a
 	 * 		The given amount that changes the speed.
 	 * @post if the given amount a is smaller than 0, the given amount a will become zero and we keep the same velocity.
-	 * @effect verwijst naar setSpeed
-	 * 
+	 * @effect The speed of this ship is adapted
 	 */
+	//TO DO add the acceleartion of the ship
 	public void thrust(double a) {
 		if (this.isThrusterActive())
 			if (a < 0)
@@ -331,14 +450,21 @@ public class Ship extends Entity{
 			setSpeed(newspeed);
 	}
 	
+	/**
+	 * Terminate a ship, this means set his world to null, moving it to an unbounded world.
+	 */
 	public void terminateShip(){
 		this.setWorld(null);
 	}
 	
+	/**
+	 * Check if a ship is terminated, in other words, if it doesn't belong to a world.
+	 * @return
+	 * 		A boolean stating if the ship belongs to world or not
+	 */
 	public boolean isTerminatedShip(){
-		if (this.getWorld() == null){
+		if (this.getWorld() == null)
 			return true;
-		}
 		return false;
 	}
 }
