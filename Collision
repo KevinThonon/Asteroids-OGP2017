@@ -1,0 +1,202 @@
+package asteroids.model;
+
+
+
+import java.util.Set;
+
+public final class Collision{
+	
+	/**
+	 * Create a collision with two or one entities.
+	 * @param entity1
+	 * 		Entity that collides with an other entity or a boundary.
+	 * @param entity2
+	 * 		An entity if two entities collide or a null value if entity1 collide with a boundary.
+	 * @post this.setEntity1(entity1)
+	 * @post this.setEntity2(entity2)
+	 */
+	public Collision(Entity entity1, Entity entity2){
+		this.setEntity1(entity1);
+		this.setEntity2(entity2);
+	}
+	
+	private Entity entity1;
+	private Entity entity2;
+	
+	/**
+	 * Returns entity1 in the collision.
+	 * @return this.entity1
+	 */
+	public Entity getEntity1(){
+		return this.entity1;
+	}
+	
+	/**
+	 * Sets entity1 as the given entity.
+	 * @param entity
+	 */
+	private void setEntity1(Entity entity){
+		this.entity1 = entity;
+	}
+	
+	/**
+	 * Returns entity2 in the collision.
+	 * @return this.entity2
+	 */
+	public Entity getEntity2(){
+		return this.entity2;
+	}
+	
+	/**
+	 * Sets entity2 as the given entity.
+	 * @param entity
+	 */
+	private void setEntity2(Entity entity){
+		this.entity2 = entity;
+	}
+	
+	/**
+	 * Returns the time until the first collision happens.
+	 * @param world
+	 * 		The given world.
+	 * @return Math.min( for(Entity entity1: world.getentitys()) 1entity.timeToBoundryCollision() ||
+	 * 		1entity.getTimeToCollisoin(entity1,for(Entity entity2: world.getEntitys())))
+	 */
+	public double getTimeToCollisionInWorld(World world){
+		Set<Entity> entitystocontrol = world.getEntitys();
+		double mintimetocollision = Double.POSITIVE_INFINITY; 
+		for (Entity entity1: world.getEntitys()) {
+			if (entity1.timeToBoundaryCollision() < mintimetocollision)
+				mintimetocollision = entity1.timeToBoundaryCollision();
+			entitystocontrol.remove(entity1);
+			for (Entity entity2: entitystocontrol){
+				double timetocollision = entity1.getTimeToCollision(entity1,entity2);
+				if (timetocollision < mintimetocollision)
+					mintimetocollision = timetocollision;
+			}	
+		}
+		return mintimetocollision;
+	}
+	
+	/**
+	 * Solves the collision between a bullet and an other bullet.
+	 * @see implementation
+	 */
+	public void betweenBulletBullet(){
+	    getEntity1().getWorld().removeBullet((Bullet)getEntity1());
+		getEntity2().getWorld().removeBullet((Bullet)getEntity2());
+	}
+	
+	/**
+	 * Solves the collision between a ship and an other ship.
+	 * @see implementation
+	 */
+	public void betweenShipShip(){
+		Ship ship1 = (Ship)getEntity1();
+		Ship ship2 = (Ship)getEntity2();
+		double deltaX = ship1.getCollisionPosition(ship1, ship2)[0] -  ship2.getCollisionPosition(ship2, ship1)[0];
+		double deltaY = ship1.getCollisionPosition(ship1, ship2)[1] -  ship2.getCollisionPosition(ship2, ship1)[1];
+		double sigma = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		double J = 2*ship1.getMass()*ship2.getMass()*
+				Entity.dotProduct(ship1.deltaPosition(ship1, ship2),
+				ship1.deltaSpeed(ship1, ship2))/
+				(sigma*(ship1.getMass() + ship2.getMass()));
+		double Jx = J*ship1.deltaX(ship1, ship2)/(sigma);
+		double Jy = (J*ship1.deltaY(ship1, ship2))/sigma;
+		ship1.setSpeed(new double[] {ship1.getSpeed()[0] + Jx/ship1.getMass(), ship1.getSpeed()[1] + Jy/ship1.getMass()});
+		ship2.setSpeed(new double[] {ship2.getSpeed()[0] - Jx/ship2.getMass(), ship2.getSpeed()[1] - Jy/ship2.getMass()});
+	}
+	
+	/**
+	 * Checks whether the entity is a bullet.
+	 * @param entity
+	 * @return if(entity instanceof Bullet) return true
+	 * @return else return false
+	 */
+	public boolean isBulletClass(Entity entity){
+    	if (entity instanceof Bullet)
+    		return true;
+        return false;
+    }
+	
+	/**
+	 * Checks whether the entity is a Ship.
+	 * @param entity
+	 * @return if (entity instanceof Ship) return true
+	 * @return else return false
+	 */
+    public boolean isShipClass(Entity entity){
+    	if (entity instanceof Ship)
+    		return true;
+    	return false;
+    }
+    
+	/**
+	 * Solves the collision between a ship and a bullet.
+	 * @see implemantation
+	 */
+	public void betweenShipBullet(){
+		if (isShipClass(getEntity1())){
+			Ship ship = (Ship)getEntity1();
+			Bullet bullet = (Bullet)getEntity2();
+			if (ship == bullet.getSource()){
+				ship.addBullet(bullet);
+			}
+			else{
+				bullet.getWorld().removeBullet(bullet);;
+				ship.getWorld().removeShip(ship);
+			}
+		}
+		else{
+			Ship ship = (Ship)getEntity2();
+			Bullet bullet = (Bullet)getEntity1();
+			if (ship == bullet.getSource()){
+				ship.addBullet(bullet);
+			}
+			else{
+				bullet.getWorld().removeBullet(bullet);;
+				ship.getWorld().removeShip(ship);
+			}
+		}
+	}
+	
+	private double EPSILON = 0.001;
+	
+	/**
+	 * Solves the collision between a ship and a boundary.
+	 * @see implementation
+	 */
+	public void withShipBoundry(){
+		Ship ship = (Ship)getEntity1();
+		if (ship.getPosition()[0] - ship.getRadius() <= EPSILON || 
+				ship.getWorld().getWidth() - ship.getPosition()[0] - ship.getRadius() <= EPSILON){
+			ship.setSpeed(new double[] {-ship.getSpeed()[0],ship.getSpeed()[1]});
+		}
+		if (ship.getPosition()[1] - ship.getRadius() <= EPSILON || 
+				ship.getWorld().getHeigth() - 
+				ship.getPosition()[1] - ship.getRadius() <= EPSILON){
+			ship.setSpeed(new double[] {ship.getSpeed()[0], - ship.getSpeed()[1]});
+		}
+	}
+	
+	/**
+	 * Solves the collision between a bullet and a boundary.
+	 * @post ((Bullet)getEntity1()).substractBounce()
+	 * @see implementation
+	 */
+	public void withBulletBoundry(){
+		Bullet bullet = (Bullet)getEntity1();
+		bullet.substractBounce();
+		if (bullet.residualbounces == 0){
+			bullet.getWorld().removeBullet(bullet);;
+		}
+		else{
+			if (bullet.getPosition()[0] - bullet.getRadius() <= EPSILON || 
+					bullet.getWorld().getWidth() - bullet.getPosition()[0] - bullet.getRadius() <= EPSILON)
+				bullet.setSpeed(new double[] {-bullet.getSpeed()[0],bullet.getSpeed()[1]});
+			if (bullet.getPosition()[1] - bullet.getRadius() <= EPSILON || 
+					bullet.getWorld().getHeigth() - bullet.getPosition()[1] - bullet.getRadius() <= EPSILON)
+				bullet.setSpeed(new double[] {bullet.getSpeed()[0], - bullet.getSpeed()[1]});
+		}
+	}
+}
