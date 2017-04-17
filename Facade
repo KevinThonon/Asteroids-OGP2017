@@ -1,4 +1,3 @@
-
 /**
  * The Facade for part 1 of the project of ogp 2017
  * 
@@ -11,6 +10,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import asteroids.model.Bullet;
+import asteroids.model.Collision;
 import asteroids.model.Entity;
 import asteroids.model.Ship;
 import asteroids.model.World;
@@ -454,7 +454,8 @@ public class Facade implements asteroids.part2.facade.IFacade {
 	 * returned if no collision will occur.
 	 */
 	public double getTimeNextCollision(World world) throws ModelException{
-		return world.getMinCollisionInWorld();
+		Collision collisions = world.getFirstCollisions();
+		return collisions.getTimeToCollisionInWorld(world);
 	}
 
 	/**
@@ -476,7 +477,7 @@ public class Facade implements asteroids.part2.facade.IFacade {
 	 * notify methods.
 	 */
 	public void evolve(World world, double dt, CollisionListener collisionListener) throws ModelException{
-		world.evolve(dt);
+		world.evolve(dt,null);
 	}
 
 	/**
@@ -497,4 +498,5 @@ public class Facade implements asteroids.part2.facade.IFacade {
 	
 
 }
+
 
