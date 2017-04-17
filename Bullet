@@ -1,33 +1,45 @@
 package asteroids.model;
 
 public class Bullet extends Entity{
-
+	
+	/**
+	 *Create a bullet with a given position (x,y), given speed (vx,vy), 
+	 *and given radius. 
+	 * @param xPosition
+	 * 			The x-coordinate of the position of the new bullet.
+	 * @param yPosition
+	 * 			The y-coordinate of the position of the new bullet.			
+	 * @param xSpeed
+	 * 			The x-coordinate of the speed of the new bullet.
+	 * @param ySpeed
+	 * 			The y-coordinate of the speed of the new bullet.
+	 * @param radius
+	 * 			The radius of the new bullet.
+	 * @throws IllegalArgumentException
+	 */
 	public Bullet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
 			throws IllegalArgumentException {
 		super(xPosition, yPosition, xSpeed, ySpeed);
 		this.setRadius(radius);
-		this.setWorld(world);
-		this.setShip(ship);
-		this.setSource(ship);
 	}
 	
 	public World world;
 	private double radius;
 	
 	/**
-	 * It returns the radius of the ship.
-	 * @return the radius of the ship.
+	 * It returns the radius of the bullet.
+	 * @return the radius of the bullet.
 	 */
 	public double getRadius(){
 		return radius;
 	}
 	
 	/**
-	 * Sets the radius of the ship to the given radius.
+	 * Sets the radius of the bullet to the given radius.
 	 * @param radius
-	 * 			The radius of the ship.
+	 * 			The radius of the bullet.
 	 * @throws IllegalArgumentException
-	 * 			It isn't an valid radius as radius is smaller as ten and the radius isn't greater than positive infinity.
+	 * 			It isn't an valid radius as radius is smaller as one and the radius isn't greater than positive infinity.
 	 */
 	protected void setRadius(double radius) throws IllegalArgumentException{
 		if ((radius < 1) || (radius > Double.POSITIVE_INFINITY)) 
@@ -37,48 +49,93 @@ public class Bullet extends Entity{
 	
 	private final static double density = 7.8*Math.pow(10, 2);
 	
+	/**
+	 * It returns the mass of the bullet.
+	 * @see implementation
+	 */
 	public double getMass() {
 		return (4/3)*Math.PI*Math.pow(getRadius(), 3)*density;
 	}
 	
+	/**
+	 * It returns the world of the bullet.
+	 * @return this.world
+	 */
 	public World getWorld(){
 		return this.world;
 	}
 	
+	/**
+	 * It sets the world of the bullet.
+	 * @post this.world = world
+	 */
 	public void setWorld(World world){
 		this.world = world;
 	}
 	
+	/**
+	 * It returns the source (Ship) of the bullet.
+	 * @return this.source
+	 */
 	public Ship getSource() {
 		return this.source;
 	}
 	
 	public Ship source;
 	
+	/**
+	 * It sets the source of the Bullet
+	 * @param ship
+	 * 		The ship of the bullet
+	 * @post this.source = ship
+	 */
 	public void setSource(Ship ship) {
 		this.source = ship;
 	}
 	
 	public double residualbounces = 2;
 	
+	/**
+	 * It returns the residual bounces of the bullet.
+	 * @return this.residualbounces
+	 */
 	public double getResidualBounces() {
 		return this.residualbounces;
 	}
 	
+	/**
+	 * It removes a bounce from residual bounces of the bullet.
+	 * @post residualbounces = residualbounces - 1
+	 */
 	public void substractBounce() {
 		residualbounces = residualbounces - 1;
 	}
 	
 	public Ship ship;
 	
+	/**
+	 * It sets the ship of the bullet.
+	 * @param ship
+	 * 		The ship where the bullet belongs too.
+	 * @post this.ship = ship
+	 */
 	public void setShip(Ship ship) {
 		this.ship = ship;
 	}
 	
+	/**
+	 * It returns the ship that belongs to the bullet.
+	 * @return this.ship;
+	 */
 	public Ship getShip() {
 		return this.ship;
 	}
 	
+	/**
+	 * It returns the position of the bullet.
+	 * @return if (this.getShip() == null) return this.getPosition()
+	 * @return else return this.getShip().getPosition()
+	 */
 	public double[] getBulletPosition(){
 		if (this.getShip() == null)
 			return this.getPosition();
@@ -86,6 +143,11 @@ public class Bullet extends Entity{
 			return this.getShip().getPosition();
 	}
 	
+	/**
+	 * It returns the speed of the bullet.
+	 * @return if (this.getShip() == null) return this.getSpeed()
+	 * @return else return this.getShip().getSpeed()
+	 */
 	public double[] getBulletSpeed(){
 		if (this.getShip() == null)
 			return this.getSpeed();
@@ -99,25 +161,37 @@ public class Bullet extends Entity{
 	 * 			The given duration.
 	 * @throws IllegalArgumentException
 	 * 			If the duration isn't valid.
-	 * defensief programmeren
-	 * @post toevoegen, wat is er gebeurd?
+	 * @post if (this.getShip() != null) setPosition( this.getShip().getPosition())
+	 * @post else setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, 
+	 * 			this.getPosition()[1] + this.getSpeed()[1]*duration})
 	 */
 	public void move(double duration) throws IllegalArgumentException{
 		if (!isValidDuration(duration)) throw new IllegalArgumentException();
-		double[] newposition = {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration};
-		setPosition(newposition);
+		if (this.getShip() != null){
+			setPosition( this.getShip().getPosition());
+		}
+		else{
+			setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration});
+		}	
 	}
 	
+	/**
+	 * It terminates the bullet, removes the bullet from the world.
+	 * @post this.setWorld(null);
+	 */
 	public void terminateBullet(){
 		this.setWorld(null);
 	}
 	
+	/**
+	 * Checks whether the bullet is terminated.
+	 * @return if (this.getWorld() == null) return true
+	 * @return else false
+	 */
 	public boolean isTerminatedBullet(){
 		if (this.getWorld() == null){
 			return true;
 		}
 		return false;
 	}
-	
-	
 }
