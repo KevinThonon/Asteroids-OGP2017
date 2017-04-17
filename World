@@ -1,7 +1,6 @@
 package asteroids.model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -12,7 +11,7 @@ public class World {
 	public double height;
 	
 	/**Create a world with a width and height 
-	 * expressed in kilometres (km).
+	 * expressed in kilometers.
 	 * 
 	 * @param width
 	 * 		  The width of this world.
@@ -27,25 +26,44 @@ public class World {
 		this.width = width;
 		this.height = height;
 	}
-	
+	/**
+	 * Returns the width of this world.
+	 * @return this.width
+	 */
 	public double getWidth(){
 		return this.width;
 	}
 	
+	/**
+	 * Returns the height of this world.
+	 * @return this.height
+	 */
 	public double getHeigth(){
 		return this.height;
 	}
 	
+	/**
+	 * Returns a double array with the width and the size of this world.
+	 * @return new double[] {this.width , this.height}
+	 */
 	public double[] getWorldSize(){
 		return new double[] {getWidth(),getHeigth()};
 	}
 	
+	/**
+	 * Returns a set of all the ships in this world. 
+	 * @return this.ships
+	 */
 	public Set<Ship> getShips(){
 		return this.ships;
 	}
 	
 	private Set<Ship> ships = new HashSet<Ship>();
 	
+	/**
+	 * Returns a set of all the bullets in this world.
+	 * @return this.bullets
+	 */
 	public Set<Bullet> getBullets(){
 		return this.bullets;
 	}
@@ -53,15 +71,27 @@ public class World {
 	
 	private Set<Bullet> bullets = new HashSet<Bullet>();
 	
+	/**
+	 * Returns a set of all the entities in this world.
+	 * @return this.entities
+	 */
     public Set<Entity> getEntitys(){
+    	Set<Entity> entitys = new HashSet<Entity>();
 		entitys.addAll(getBullets());
 		entitys.addAll(getShips());
-		return this.entitys;
+		return entitys;
 	}
+ 
 	
-	private Set<Entity> entitys = new HashSet<Entity>();  
-	
-	
+	/**
+	 * Check whether this world can have ship1 as ship.
+	 * @param ship1
+	 * 		A ship.
+	 * @return if (ship1.overlap((Ship)ship1,(Ship)ship2)) return false
+	 * @return if (ship1.overlap((Ship)ship1,(Bullet)bullet)) return false
+	 * @return if (ship1.getWorld() == this || ship1.getWorld() == null ) return true
+	 * @return else return false
+	 */
 	private boolean canHaveAsShip(Ship ship1) {
 		for (Ship ship2: getShips()){
 			if (ship1.overlap(ship1, ship2))
@@ -69,23 +99,48 @@ public class World {
 		for (Bullet bullet: getBullets()){
 			if (ship1.overlap(ship1,bullet))
 			    return false;}
-		if (ship1.getWorld() == this || ship1.getWorld() == null )  //intorduce getWorld() en setWorld en isValidWorld (definsief) in entity class
+		if (ship1.getWorld() == this || ship1.getWorld() == null ) 
 			return true;
 		return false;
 	}
 	
+	/**
+	 * It adds a ship to this world.
+	 * @param ship
+	 * @throws IllegalArgumentException
+	 * 		if (!canHaveAsShip(ship))
+	 * @post this.ships.add(ship)
+	 * @post ship.setWorld(this)
+	 */
 	public void addShip(Ship ship) {
 		if (!canHaveAsShip(ship)) throw new IllegalArgumentException("The world can't have this ship.");
 		this.ships.add(ship);
 		ship.setWorld(this);
 	}
 	
+	/**
+	 * It removes a ship from this world.
+	 * @param ship
+	 * @throws 
+	 * 		if (ship.getWorld() != this)
+	 * @post this.ships.remove(ship)
+	 * @post ship.setWorld(null);
+	 */
 	public void removeShip(Ship ship) {
 		if (ship.getWorld() != this) throw new IllegalArgumentException("This ship isn't in this world.");
 		this.ships.remove(ship);
 		ship.setWorld(null);
 	}
 	
+	/**
+	 * Check whether this world can have bullet1 as Bullet.
+	 * @param bullet1
+	 * 		A bullet.
+	 * @return if (bullet1.overlap(bullet1,bullet2)) return false
+	 * @return if (bullet1.overlap(bullet1,ship)) return false
+	 * @return if (bullet1.getWorld() == this || bullet1.getWorld() == null ) return true
+	 * @return else false
+	 */
 	private boolean canHaveAsBullet(Bullet bullet1) {
 		for (Bullet bullet2: getBullets()) {
 			if (bullet1.overlap(bullet1,bullet2))
@@ -98,73 +153,124 @@ public class World {
 		return false;
 	}
 	
+	/**
+	 * It adds a bullet to this world.
+	 * @param bullet
+	 * @throws IllegalArgumentException
+	 * 		if (!canHaveAsBullet(bullet))
+	 * @post this.bullets.add(bullet)
+	 * @post bullet.setWorld(this)
+	 */
 	public void addBullet(Bullet bullet) {
 		if (!canHaveAsBullet(bullet)) throw new IllegalArgumentException("The world can't have this bullet.");
 		this.bullets.add(bullet);
-		bullet.setWorld (this);
+		bullet.setWorld(this);
 	}
 	
+	/**
+	 * It removes a bullet from this world.
+	 * @param bullet
+	 * @throws IllegalArgumentException
+	 * 		if (bullet.getWorld() != this)
+	 * @post this.bullets.remove(bullet)
+	 * @post bullet.setWorld(null);
+	 */
 	public void removeBullet(Bullet bullet) {
 		if (bullet.getWorld() != this) throw new IllegalArgumentException("This bullet isn't in this world");
 		this.bullets.remove(bullet);
 		bullet.setWorld(null);
 	}
 	
-	
-	
-	public double getMinCollisionInWorld(){
-		Set<Entity> entitystocontrol = getEntitys();
-		double mintimetocollision = Double.POSITIVE_INFINITY; 
-		for (Entity entity1: getEntitys()) {
-			if (entity1.timeToBoundaryCollision() < mintimetocollision)
-				mintimetocollision= entity1.timeToBoundaryCollision();
-			entitystocontrol.remove(entity1);
-			for (Entity entity2: entitystocontrol){
-				double timetocollision = entity1.getTimeToCollision(entity1,entity2);
-				if (timetocollision < mintimetocollision)
-					mintimetocollision = timetocollision;
-			}
-		}
-		return mintimetocollision;
-	}
-	
+	/**
+	 * Checks whether the entity is a bullet.
+	 * @param entity
+	 * @return if(entity instanceof Bullet) return true
+	 * @return else return false
+	 */
 	public boolean isBulletClass(Entity entity){
-    	if (entity instanceof Ship)
-    		return false;
-        return true;
+    	if (entity instanceof Bullet)
+    		return true;
+        return false;
     }
 	
+	/**
+	 * Checks whether the entity is a Ship.
+	 * @param entity
+	 * @return if (entity instanceof Ship) return true
+	 * @return else return false
+	 */
     public boolean isShipClass(Entity entity){
     	if (entity instanceof Ship)
     		return true;
     	return false;
     }
 	
-	@SuppressWarnings("null")
-	public List<Entity> getCollisions(){
-		List<Entity> collisions = null;
-		Set<Entity> entitystocontrol = getEntitys();
+    /**
+     * Returns the collision that happens first in this world 
+     * 	between two entities or an entity and a boundary.
+     * @return if  (mintimetocollision == Double.POSITIVE_INFINITY) return (null)
+     * @return else if (entity1.timeToBoundryCollision <= entity1.getTimeTocollision(entity1,entity2)) return (entity1 , null)
+     * @return else return (entity1,entity2)
+     */
+	public Collision getFirstCollisions(){
+		Collision collisions = (null);
+		Set<Entity> entitystocontrol = this.getEntitys();
 		double mintimetocollision = Double.POSITIVE_INFINITY; 
-		for (Entity entity1: getEntitys()) {
-			if (entity1.timeToBoundaryCollision() < mintimetocollision){
-				mintimetocollision= entity1.timeToBoundaryCollision();
-				collisions.clear();
-				collisions.add(entity1);
+		for (Entity entity1: this.getEntitys()) {
+			if (entity1.timeToBoundaryCollision() <= mintimetocollision){
+				mintimetocollision = entity1.timeToBoundaryCollision();
+				collisions = new Collision (entity1 , null);
 			}
 			entitystocontrol.remove(entity1);
 			for (Entity entity2: entitystocontrol){
 				double timetocollision = entity1.getTimeToCollision(entity1,entity2);
-				if (timetocollision < mintimetocollision){
+				if (timetocollision <= mintimetocollision){
 					mintimetocollision = timetocollision;
-					collisions.clear();
-					collisions.add(entity1);
-					collisions.add(entity2);
+					collisions = new Collision (entity1,entity2);
 				}
 			}
 		}
 		return collisions;
 	}
 	
+	/**
+	 * It solves a collision in this world.
+	 * @param collision
+	 * 		A array with two entities in or an entity and null value.
+	 */
+    public void solveCollisionInWorld(Collision collision){
+		if(collision.getEntity2()==null){
+			if (isShipClass(collision.getEntity1())){
+				collision.withShipBoundry();
+			}
+			else{
+				collision.withBulletBoundry();
+			}
+		}
+		else{
+			if (isShipClass(collision.getEntity1()) || isShipClass(collision.getEntity2())){
+				if (isShipClass(collision.getEntity2()) && isShipClass(collision.getEntity1())){
+					collision.betweenShipShip();
+				}
+				else{
+					collision.betweenShipBullet();
+				}
+			}
+			else{
+				collision.betweenBulletBullet();
+			}
+		}
+	}
+    
+    /**
+     * Checks whether the given time is valid.
+     * @param time
+     * 		A certain number of seconds.
+     * @return if (time < 0) return false
+     * @return if (time == Double.POSITIVE_INFINITY) return false
+     * @return if (time == Double.NaN return false
+     * @return else return true
+     */
 	private boolean isValidTime(double time){
 		if (time < 0)
 			return false;
@@ -176,123 +282,94 @@ public class World {
 		
 	}
 	
-	public void collisionBetweenBulletBullet(Bullet bullet1,Bullet bullet2){
-		this.bullets.remove(bullet1);
-		this.bullets.remove(bullet2);
-	}
-	
-	public void collisionBetweenShipShip(Ship ship1, Ship ship2){
-		double J = 2*(ship1.getMass())*(ship2.getMass())*Entity.dotProduct(ship1.deltaPosition(ship1, ship2),ship1.deltaSpeed(ship1, ship2))
-				/(ship1.getDensity()*(ship1.getMass()*ship2.getMass()));
-		double Jx = (J*ship1.deltaX(ship1, ship2))/(ship1.getDensity());
-		double Jy = (J*ship1.deltaY(ship1, ship2))/(ship1.getDensity());
-		ship1.setSpeed(new double[] {ship1.getSpeed()[0] + Jx/ship1.getMass(), ship1.getSpeed()[1] + Jy/ship1.getMass()});
-		ship2.setSpeed(new double[] {ship2.getSpeed()[0] - Jx/ship2.getMass(), ship2.getSpeed()[1] - Jy/ship2.getMass()});
-	}
-	
-	public void collisionBetweenShipBullet(Ship ship,Bullet bullet){
-		if (ship == bullet.getSource()){
-			//the bullet is reloaded on the ship, with its position equal to the centre of the ship.
-		}
-		else{
-			this.bullets.remove(bullet);
-			this.ships.remove(ship);
-		}
-	}
-	
-	
-	public void collisionWithShipBoundry(Ship ship){
-		if((ship.positionBoundaryCollision()[0] - this.width) < (ship.positionBoundaryCollision()[1] - this.height)){
-			ship.setSpeed(new double[] {-ship.getSpeed()[0],ship.getSpeed()[1]});
-		}
-		else{
-			ship.setSpeed(new double[] {ship.getSpeed()[0],-ship.getSpeed()[1]});
-		}
-	}
-	
-	
-	public void collisionWithBulletBoundry(Bullet bullet){
-		if (bullet.residualbounces == 0){
-			bullets.remove(bullet);}
-		else{
-			if((bullet.positionBoundaryCollision()[0] - this.width) < (bullet.positionBoundaryCollision()[1] - this.height)){
-				bullet.setSpeed(new double[] {-bullet.getSpeed()[0],bullet.getSpeed()[1]});
-			}
-			else{
-				bullet.setSpeed(new double[] {bullet.getSpeed()[0],-bullet.getSpeed()[1]});
-			}
-			bullet.substractBounce();
-		}
-	}
-	
-    
-	public void collisionWithEntity(){
-		List<Entity> entities = getCollisions();
-		if(entities.size()==1){
-			if (isShipClass(entities.get(0))){
-				collisionWithShipBoundry((Ship)entities.get(0));
-			}
-			else{
-				collisionWithBulletBoundry((Bullet)entities.get(0));
-			}
-		}
-		else{
-			if (isShipClass(entities.get(0)) || isShipClass(entities.get(1))){
-				if (isShipClass(entities.get(1)) && isShipClass(entities.get(0))){
-					collisionBetweenShipShip((Ship)entities.get(0),(Ship)entities.get(1));
-				}
-				else{
-					if (isBulletClass(entities.get(0))){
-						collisionBetweenShipBullet((Ship)entities.get(1),(Bullet)entities.get(0));
-					}
-					else{
-						collisionBetweenShipBullet((Ship)entities.get(0),(Bullet)entities.get(1));
-					}
-				}
-			}
-			else{
-				collisionBetweenBulletBullet((Bullet)entities.get(0),(Bullet)entities.get(1));
-			}
-		}
-	}
-			
-	public void evolve(double time){
+	/**
+	 * Advances the sate of this world a certain number of seconds after a previous solved collision.
+	 * @param time
+	 * 		A certain number of seconds.
+	 * @param previousSolvedCollision
+	 * 		The previous solve collision.
+	 * 
+	 */
+	public void evolve(double time, Collision previousSolvedCollision){
 		if (!(isValidTime(time))) throw new IllegalArgumentException("This given certain time isn't valid");
-		double T = time;
-		double ready = 1;
-		while (ready != 0){
-			if ( getMinCollisionInWorld()<T){
-				collisionWithEntity();
-				T = T - getMinCollisionInWorld();
+		Collision collisions = getFirstCollisions();
+		double timefirstcollision = collisions.getTimeToCollisionInWorld(this);
+		if (timefirstcollision < time){
+			this.advance(timefirstcollision);
+			solveCollisionInWorld(collisions);
+			time -= timefirstcollision;
+			evolve(time, previousSolvedCollision);
+		}
+		else{
+			advance(time);
+		}
+	
+		
+	}
+	
+	/**
+	 * Advances the sate of this world a certain number of seconds.
+	 * @param time
+	 * 		A certain number of seconds.
+	 */
+	public void evolve(double time){
+		evolve(time, null);
+	}
+	
+	/**
+	 * It moves entities for a certain number of seconds.
+	 * @param time
+	 * 		A certain number of seconds.
+	 */
+	public void advance(double time){
+		for (Ship ship: this.getShips()){
+			ship.move(time);
+			for (Bullet bullet: ship.getBullets()){
+				bullet.move(time);
 			}
-			else{
-				ready = 0; 
+			
+			for (Bullet bullet: ship.getBullets()){
+				bullet.setSpeed(ship.getSpeed());
 			}
 		}
-		for (Bullet bullet: getBullets()){
-			bullet.move(T);
-		}
-		for (Ship ship: getShips()){
-			ship.move(T);
+		for (Bullet bullet: this.getBullets()){
+			bullet.move(time);
 		}
 	}
 	
+	/**
+	 * Destroys this world by removing all entities from this world.
+	 * @post entity.setWorld(null)
+	 * @post this.bullet.clear()
+	 * @post this.ships.clear()
+	 */
 	public void destroyWorld(){
 		Set<Entity> entities = getEntitys();
 		for (Entity entity: entities){
 			entity.setWorld(null);
 			}
-		this.entitys.clear();
 		this.bullets.clear();
 		this.ships.clear();
 		}
 	
+	/**
+	 * Checks whether this world is destroyed.
+	 * @return if (bullets.size()==00 && ships.size()==0) return true
+	 * @return else false;
+	 */
 	public boolean isDestoyedWorld(){
 		if (bullets.size()==0 && ships.size()==0)
 			return true;
 		return false;
 	}
-		
+	
+	/**
+	 * Returns entity at the given position in this world.
+	 * @param x
+	 * @param y
+	 * @return if (entity.getPosition() == position) return entity
+	 * @return else return null
+	 */
 	public Entity getEntityAt(double x , double y){
 		double[] position = {x,y};
 		Set<Entity> allentities = getEntitys();
@@ -303,18 +380,22 @@ public class World {
 		return null;
 	}
 	
+	/**
+	 * Returns the position of the next collision in this world.
+	 * @return if (collisions.getTimeToCollisionInWorld(this) == Double.POSITIVE_INFINITY) return null
+	 * @return if (collisions.getEntity2()==null) return entity.positionBoundaryCollision()
+	 * @return else entity.getCollisionPosition(entity, collisions.getEntity2())
+	 */
 	public double [] getPositionNextCollision(){
-		List<Entity> entities = this.getCollisions();
-		Entity entity = entities.get(0);
-		if (entities.size()==1){
+		Collision collisions = this.getFirstCollisions();
+		Entity entity = collisions.getEntity1();
+		if (collisions.getTimeToCollisionInWorld(this) == Double.POSITIVE_INFINITY )
+			return null;
+		if (collisions.getEntity2()==null){
 			return entity.positionBoundaryCollision();
 		}
 		else{
-			return entity.getCollisionPosition(entity, entities.get(1));
+			return entity.getCollisionPosition(entity, collisions.getEntity2());
 		}
-			
-		
-	}
-		
+	}	
 }
-	
