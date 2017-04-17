@@ -336,6 +336,41 @@ public class Entity {
 		return ((vector1[0] * vector2[0]) + (vector1[1] * vector2[1]));
 	}
 	
+		/**
+	 * Helper function for getTimeToCollision
+	 * @param entity1
+	 * @param entity2
+	 * @return
+	 * 		|(Math.pow(entity1.getPosition()[0]-entity2.getPosition()[0],2)+Math.pow(entity1.getPosition()[1]-entity2.getPosition()[1],2))
+	 */
+	private double dotProductPosition(Entity entity1, Entity entity2){
+		return (Math.pow(entity1.getPosition()[0]-entity2.getPosition()[0],2)+Math.pow(entity1.getPosition()[1]-entity2.getPosition()[1],2));
+	}
+	
+	/**
+	 * Helper function for getTimeToCollision
+	 * @param entity1
+	 * @param entity2
+	 * @return
+	 * 		|(Math.pow(entity1.getSpeed()[0]-entity2.getSpeed()[0],2)+Math.pow(entity1.getSpeed()[1]-entity2.getSpeed()[1],2))
+	 */
+	private double dotProductSpeed(Entity entity1, Entity entity2){
+		return (Math.pow(entity1.getSpeed()[0]-entity2.getSpeed()[0],2)+Math.pow(entity1.getSpeed()[1]-entity2.getSpeed()[1],2));
+	}
+	
+	/**
+	 * Helper function for getTimeToCollision
+	 * @param entity1
+	 * @param entity2
+	 * @return
+	 * 		|((entity2.getPosition()[0]-entity1.getPosition()[0])*(entity2.getSpeed()[0]-entity1.getSpeed()[0])+
+				(entity2.getPosition()[1]-entity1.getPosition()[1])*(entity2.getSpeed()[1]-entity1.getSpeed()[1]))
+	 */
+	private double dotProductPositionSpeed(Entity entity1, Entity entity2){
+		return ((entity2.getPosition()[0]-entity1.getPosition()[0])*(entity2.getSpeed()[0]-entity1.getSpeed()[0])+
+				(entity2.getPosition()[1]-entity1.getPosition()[1])*(entity2.getSpeed()[1]-entity1.getSpeed()[1]));
+	}
+	
 	/**
 	 * This function registers a certain value that is used in the collision function, if it is negative,
 	 * the entities will never collide, if it is positive they will collide
@@ -345,13 +380,15 @@ public class Entity {
 	 * 		Second entity
 	 * @return
 	 * 		The value d
-	 * 		|Math.pow(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2)), 2) - 
-				(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaSpeed(entity1, entity2))) * (dotProduct(entity1.deltaPosition(entity1, entity2),entity1.deltaPosition(entity1, entity2))
+	 * 		|Math.pow(entity1.dotProductPositionSpeed(entity1, entity2), 2) - 
+				(entity1.dotProductSpeed(entity1, entity2)) * 
+				((entity1.dotProductPosition(entity1, entity2))
 				- Math.pow(entity1.distanceBetweenCentersAtCollision(entity1, entity2), 2))
 	 */
 	private double d(Entity entity1, Entity entity2){
-		return Math.pow(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2)), 2) - 
-				(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaSpeed(entity1, entity2))) * (dotProduct(entity1.deltaPosition(entity1, entity2),entity1.deltaPosition(entity1, entity2))
+		return Math.pow(entity1.dotProductPositionSpeed(entity1, entity2), 2) - 
+				(entity1.dotProductSpeed(entity1, entity2)) * 
+				((entity1.dotProductPosition(entity1, entity2))
 				- Math.pow(entity1.distanceBetweenCentersAtCollision(entity1, entity2), 2));
 	}
 	
@@ -379,9 +416,15 @@ public class Entity {
 			return Double.POSITIVE_INFINITY;
 		if ((entity1.d(entity1, entity2)) < 0)
 			return Double.POSITIVE_INFINITY;
+		if (entity1.dotProductSpeed(entity1, entity2) == 0){
+			if (entity1.overlap(entity1, entity2))
+				return 0;
+			else 
+				return Double.POSITIVE_INFINITY;
+		}		
 		else
-			return (-(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2)) + Math.sqrt(entity1.d(entity1, entity2)))
-					/ dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaSpeed(entity1, entity2)));
+			return ((-entity1.dotProductPositionSpeed(entity1, entity2) + Math.sqrt(entity1.d(entity1, entity2)))
+					/ entity1.dotProductSpeed(entity1, entity2));
 	}
 	
 	/**
