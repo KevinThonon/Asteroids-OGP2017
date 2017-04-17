@@ -1,9 +1,9 @@
-
 package asteroids.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +11,6 @@ import org.junit.Test;
 import asteroids.model.Bullet;
 import asteroids.model.Ship;
 import asteroids.model.World;
-import asteroids.model.Entity;
 import asteroids.facade.Facade;
 import asteroids.part2.facade.IFacade;
 import asteroids.util.ModelException;
@@ -58,9 +57,9 @@ public class Part2Tests {
 	@Test
 	public void testTurn2() throws ModelException {
 		Ship ship = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
-		ship.turn(3.6*Math.PI);
+		ship.turn(1.6*Math.PI);
 		assertEquals(0.6*Math.PI, ship.getOrientation(), EPSILON);
-		ship.turn(-3.6*Math.PI);
+		ship.turn(-1.6*Math.PI);
 		assertEquals(Math.PI, ship.getOrientation(), EPSILON);
 	}
 	
@@ -82,9 +81,8 @@ public class Part2Tests {
 	
 	@Test
 	public void testThrust() throws ModelException {
-		World world = facade.createWorld(5000, 5000);
 		Ship ship = facade.createShip(0, 0, 0, 0, 50, 0, 1.1E18);
-		ship.thrust();
+		ship.thrust(2);
 		double[] speed = ship.getSpeed();
 		assertNotNull(speed);
 		assertEquals(2, speed[0], EPSILON);
@@ -190,15 +188,15 @@ public class Part2Tests {
 	public void testGetCollisionPosition2() throws ModelException {
 		Ship ship1 = facade.createShip(200, 100, -10, 0, 50, 0, 5000000);
 		Ship ship2 = facade.createShip(0, 100, 10, 0, 50, 0, 5000000);
-		assertEquals(50, ship2.getCollisionPosition(ship1, ship2)[1], EPSILON);
 		assertEquals(150, ship1.getCollisionPosition(ship1, ship2)[0], EPSILON);
+		assertEquals(100, ship1.getCollisionPosition(ship1, ship2)[1], EPSILON);
 	}
 	
 	@Test
 	public void testGetCollisionPosition3() throws ModelException {
 		Ship ship1 = facade.createShip(1000, 0, -10, -100, 50, 0, 5000000);
 		Ship ship2 = facade.createShip(0, 0, 10, 100, 50, 0, 5000000);
-		assertEquals(null, ship1.getCollisionPosition(ship1, ship2));
+		assertEquals(Double.POSITIVE_INFINITY, ship1.getCollisionPosition(ship1, ship2));
 	}
 	
 	@Test(expected = ModelException.class)
@@ -231,6 +229,28 @@ public class Part2Tests {
 		ship.terminateShip();
 		assert (ship.isTerminatedShip());
 	}
+	
+	@Test
+	public void addingABullet() throws ModelException{
+		Ship ship = facade.createShip(100,100,0,0,50,0,5000000);
+		Bullet bullet = facade.createBullet(10,10,0,0,10);
+		facade.loadBulletOnShip(ship, bullet);
+		assertEquals(1,facade.getNbBulletsOnShip(ship));
+	}
+
+	@Test
+	public void addingMoreBullets() throws ModelException{
+		Ship ship = facade.createShip(100,100,0,0,50,0,5000000);
+		Bullet bullet1 = facade.createBullet(10,10,0,0,10);
+		Bullet bullet2 = facade.createBullet(10,10,0,0,20);
+		Bullet bullet3 = facade.createBullet(10,10,0,0,30);
+		Set <Bullet> bulletset = new HashSet<Bullet>();
+		bulletset.add(bullet1);
+		bulletset.add(bullet2);
+		bulletset.add(bullet3);
+		facade.loadBulletsOnShip(ship,bulletset);
+		assertEquals(3,facade.getNbBulletsOnShip(ship));
+	}
 
 	@Test
 	public void testLoadBulletOnShipOverlappingBullets() throws ModelException {
@@ -242,6 +262,28 @@ public class Part2Tests {
 		assertEquals(2, facade.getNbBulletsOnShip(ship));
 	}
 
+	@Test
+	public void testEvolve1() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
+		Ship ship = facade.createShip(100, 120, 10, 0, 50, Math.PI, 1.1E18);
+		facade.addShipToWorld(world, ship);
+		facade.evolve(world, 1, null);
+		assertEquals(110, ship.getPosition()[0], EPSILON);
+		assertEquals(120, ship.getPosition()[1], EPSILON);
+	}
+	
+	@Test
+	public void testEvolve2() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
+		Ship ship = facade.createShip(4900, 120, 200, 0, 50, Math.PI, 1.1E18);
+		facade.addShipToWorld(world, ship);
+		facade.evolve(world, 1, null);
+		assertEquals(-200, ship.getSpeed()[0], EPSILON);
+		assertEquals(0, ship.getSpeed()[1], EPSILON);
+		assertEquals(4900, ship.getPosition()[0], EPSILON);
+		assertEquals(120, ship.getPosition()[1], EPSILON);		
+	}
+	
 	@Test
 	public void testEvolveShipWithActiveThruster() throws ModelException {
 		World world = facade.createWorld(5000, 5000);
@@ -256,3 +298,4 @@ public class Part2Tests {
 	}
 
 }
+
