@@ -40,11 +40,6 @@ public class Part2Tests {
 		facade.createShip(Double.NaN, 464646, -50, -50, 50, Math.PI, 5000000);
 	}
 	
-	@Test(expected = ModelException.class)
-	public void testCreateShip2PI() throws ModelException{
-		facade.createShip(800000, 464646, 50, 50, 50, 2*Math.PI, 5000000);
-	}
-	
 	@Test
 	public void testTurn() throws ModelException{
 		Ship ship1 = facade.createShip(50000, 100000, 50000, -50000, 50, 0, 5000000);
@@ -112,8 +107,11 @@ public class Part2Tests {
 
 	@Test(expected = ModelException.class)
 	public void testGetDistanceBetweenDeadShipAndValidShip() throws ModelException {
+		World world = facade.createWorld(5000, 5000);
 		Ship ship1 = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
 		Ship ship2 = facade.createShip(200, 200, 10, 10, 100, Math.PI, 5000000);
+		facade.addShipToWorld(world, ship1);
+		facade.addShipToWorld(world, ship2);
 		ship2.terminateShip();
 		ship1.getDistanceBetween(ship1, ship2);
 	}
@@ -280,7 +278,7 @@ public class Part2Tests {
 		facade.evolve(world, 1, null);
 		assertEquals(-200, ship.getSpeed()[0], EPSILON);
 		assertEquals(0, ship.getSpeed()[1], EPSILON);
-		assertEquals(4900, ship.getPosition()[0], EPSILON);
+		assertEquals(4900, ship.getPosition()[0] + 2*ship.getRadius(), EPSILON);
 		assertEquals(120, ship.getPosition()[1], EPSILON);		
 	}
 	
