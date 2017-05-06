@@ -78,14 +78,6 @@ public final class Collision{
 		return mintimetocollision;
 	}
 	
-	/**
-	 * Solves the collision between a bullet and an other bullet.
-	 * @see implementation
-	 */
-	public void betweenBulletBullet(){
-	    getEntity1().getWorld().removeBullet((Bullet)getEntity1());
-		getEntity2().getWorld().removeBullet((Bullet)getEntity2());
-	}
 	
 	/**
 	 * Solves the collision between a ship and an other ship.
@@ -94,9 +86,7 @@ public final class Collision{
 	public void betweenShipShip(){
 		Ship ship1 = (Ship)getEntity1();
 		Ship ship2 = (Ship)getEntity2();
-		double deltaX = ship1.getCollisionPosition(ship1, ship2)[0] -  ship2.getCollisionPosition(ship2, ship1)[0];
-		double deltaY = ship1.getCollisionPosition(ship1, ship2)[1] -  ship2.getCollisionPosition(ship2, ship1)[1];
-		double sigma = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+		double sigma = ship1.getRadius() + ship2.getRadius();
 		double J = 2*ship1.getMass()*ship2.getMass()*
 				Entity.dotProduct(ship1.deltaPosition(ship1, ship2),
 				ship1.deltaSpeed(ship1, ship2))/
@@ -131,6 +121,13 @@ public final class Collision{
     	return false;
     }
     
+    public void betweenBulletEntity(){
+    	if (isShipClass(this.getEntity1()) || isShipClass(this.getEntity2()))
+    		this.betweenShipBullet();
+    	else
+    		getEntity1().getWorld().removeEntity(getEntity1());getEntity2().getWorld().removeEntity((Bullet)getEntity2());
+    		
+    }
 	/**
 	 * Solves the collision between a ship and a bullet.
 	 * @see implemantation
@@ -166,17 +163,22 @@ public final class Collision{
 	 * Solves the collision between a ship and a boundary.
 	 * @see implementation
 	 */
-	public void withShipBoundry(){
-		Ship ship = (Ship)getEntity1();
-		if (ship.getPosition()[0] - ship.getRadius() <= EPSILON || 
-				ship.getWorld().getWidth() - ship.getPosition()[0] - ship.getRadius() <= EPSILON){
-			ship.setSpeed(new double[] {-ship.getSpeed()[0],ship.getSpeed()[1]});
+	public void withEntityBoundry(){
+		if (this.getEntity1() instanceof Bullet)
+			this.withBulletBoundry();
+		else{
+			Entity entity = this.getEntity1();
+			if (entity.getPosition()[0] - entity.getRadius() <= EPSILON || 
+					entity.getWorld().getWidth() - entity.getPosition()[0] - entity.getRadius() <= EPSILON){
+				entity.setSpeed(new double[] {-entity.getSpeed()[0],entity.getSpeed()[1]});
+			}
+			if (entity.getPosition()[1] - entity.getRadius() <= EPSILON || 
+					entity.getWorld().getHeigth() - 
+					entity.getPosition()[1] - entity.getRadius() <= EPSILON){
+				entity.setSpeed(new double[] {entity.getSpeed()[0], - entity.getSpeed()[1]});
+			}
 		}
-		if (ship.getPosition()[1] - ship.getRadius() <= EPSILON || 
-				ship.getWorld().getHeigth() - 
-				ship.getPosition()[1] - ship.getRadius() <= EPSILON){
-			ship.setSpeed(new double[] {ship.getSpeed()[0], - ship.getSpeed()[1]});
-		}
+		
 	}
 	
 	/**
@@ -199,4 +201,55 @@ public final class Collision{
 				bullet.setSpeed(new double[] {bullet.getSpeed()[0], - bullet.getSpeed()[1]});
 		}
 	}
+	
+	public void betweenMinorPlanetMinorPlanet(){
+		MinorPlanet minorplanet1 = (MinorPlanet)getEntity1();
+		MinorPlanet minorplanet2 = (MinorPlanet)getEntity2();
+		double mass1;
+		if (minorplanet1 instanceof Asteroid)
+			mass1 = ((Asteroid) minorplanet1).getMass();
+		else
+			mass1 = ((Planetoid) minorplanet1).getMass();
+		double mass2;
+		if (minorplanet2 instanceof Asteroid)
+			mass2 = ((Asteroid) minorplanet2).getMass();
+		else
+			mass2 = ((Planetoid) minorplanet2).getMass();
+		double sigma = minorplanet1.getRadius() + minorplanet2.getRadius();
+		double J = 2*mass1*mass2*
+				Entity.dotProduct(minorplanet1.deltaPosition(minorplanet1, minorplanet2),
+				minorplanet1.deltaSpeed(minorplanet1, minorplanet2))/
+				(sigma*(mass1 + mass2));
+		double Jx = J*minorplanet1.deltaX(minorplanet1, minorplanet2)/(sigma);
+		double Jy = (J*minorplanet1.deltaY(minorplanet1, minorplanet2))/sigma;
+		minorplanet1.setSpeed(new double[] {minorplanet1.getSpeed()[0] + Jx/mass1, minorplanet1.getSpeed()[1] + Jy/mass1});
+		minorplanet2.setSpeed(new double[] {minorplanet2.getSpeed()[0] - Jx/mass2, minorplanet2.getSpeed()[1] - Jy/mass2});
+	}
+	
+	public void betweenAsteroidShip(){
+		if (this.getEntity1() instanceof Ship)
+			this.getEntity1().getWorld().removeShip((Ship)this.getEntity1());
+		else
+			this.getEntity2().getWorld().removeShip((Ship)this.getEntity2());
+	}
+	
+	public void betweenPlanetoidShip(){
+		if (this.getEntity1() instanceof Ship){
+			double posx = Math.random()*this.getEntity1().getWorld().getWidth();
+			double posy = Math.random()*this.getEntity1().getWorld().getHeigth();
+			double[] pos = {posx,posy};
+			this.getEntity1().setPosition(pos);
+			if (!(this.getEntity1().getWorld().canHaveAsShip((Ship)this.getEntity1())))
+				this.getEntity1().terminate();
+		}
+		else{
+			double posx = Math.random()*this.getEntity1().getWorld().getWidth();
+			double posy = Math.random()*this.getEntity1().getWorld().getHeigth();
+			double[] pos = {posx,posy};
+			this.getEntity1().setPosition(pos);
+			if (!(this.getEntity1().getWorld().canHaveAsShip((Ship)this.getEntity1())))
+				this.getEntity1().terminate();
+		}
+	}
+	
 }
