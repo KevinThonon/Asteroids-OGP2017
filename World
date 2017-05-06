@@ -9,7 +9,7 @@ public class World {
 	public double height;
 	
 	/**Create a world with a width and height 
-	 * expressed in kilometers.
+	 * expressed in kilometres.
 	 * 
 	 * @param width
 	 * 		  The width of this world.
@@ -19,7 +19,6 @@ public class World {
 	 * @post  this.height = height
 	 * 
 	 */
-	
 	public World(double width, double height){
 		this.width = width;
 		this.height = height;
@@ -68,6 +67,10 @@ public class World {
 	
 	private Set<Bullet> bullets = new HashSet<Bullet>();
 	
+	/**
+	 * Returns a set of all the minor planets in this world.
+	 * @return this.minorPlanets
+	 */
 	public Set<MinorPlanet> getMinorPlanets(){
 		return this.minorPlanets;
 	}
@@ -85,7 +88,7 @@ public class World {
 		entitys.addAll(getMinorPlanets());
 		return entitys;
 	}
-
+    
 	/**
 	 * Check whether this world can have ship1 as ship.
 	 * @param ship1
@@ -223,7 +226,7 @@ public class World {
 	 * @post minorPlanet.setWorld(this)
 	 */
 	public void addMinorPlanet(MinorPlanet minorPlanet) {
-		if (!canHaveAsMinorPlanet(minorPlanet)) throw new IllegalArgumentException("The world can't have this minorPlanet.");
+		if (!canHaveAsMinorPlanet(minorPlanet)) throw new IllegalArgumentException("The world can't have this minor planet.");
 		this.minorPlanets.add(minorPlanet);
 		minorPlanet.setWorld(this);
 	}
@@ -233,7 +236,7 @@ public class World {
 	 * @param minorPlanet
 	 * @throws IllegalArgumentException
 	 * 		if (minorPlanet.getWorld() != this)
-	 * @post this.minorPlanets.remove(bullet)
+	 * @post this.minorPlanets.remove(minorEntity)
 	 * @post minorPlanet.setWorld(null);
 	 */
 	public void removeMinorPlanet(MinorPlanet minorPlanet) {
@@ -242,6 +245,14 @@ public class World {
 		minorPlanets.setWorld(null);
 	}
 	
+	/**
+	 * It removes an entity from this world.
+	 * @param entity
+	 * @throws IllegalArgumentException
+	 * 		if (entity.getWorld() != this)
+	 * @post this.entity.remove(entity)
+	 * @post entity.setWorld(null);
+	 */
 	public void removeEntity(Entity entity) {
 		if (entity.getWorld() != this) throw new IllegalArgumentException();
 		if (entity instanceof Ship)
@@ -252,7 +263,6 @@ public class World {
 			this.minorPlanets.remove(entity);
 		entity.setWorld(null);
 	}
-	
 	
 	/**
 	 * Checks whether the entity is a bullet.
@@ -388,8 +398,6 @@ public class World {
 		else{
 			advance(time);
 		}
-	
-		
 	}
 	
 	/**
@@ -439,7 +447,7 @@ public class World {
 		this.bullets.clear();
 		this.ships.clear();
 		this.minorPlanets.clear();
-		}
+	}
 	
 	/**
 	 * Checks whether this world is destroyed.
