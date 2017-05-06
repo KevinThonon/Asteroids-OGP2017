@@ -1,3 +1,35 @@
+/**
+	 * Returns a set of all the ships in this world. 
+	 * @return this.ships
+	 */
+	public Set<MinorPlanet> getMinorPlanets(){
+		return this.minorPlanets;
+	}
+	
+	private Set<MinorPlanet> minorPlanets = new HashSet<MinorPlanet>();
+	
+	
+	/**
+	 * It removes a ship from this world.
+	 * @param ship
+	 * @throws 
+	 * 		if (ship.getWorld() != this)
+	 * @post this.ships.remove(ship)
+	 * @post ship.setWorld(null);
+	 */
+	public void remove(Entity entity) {
+		if (entity.getWorld() != this) throw new IllegalArgumentException();
+		if (entity instanceof Ship)
+			this.ships.remove(entity);
+		if (entity instanceof Bullet)
+			this.bullets.remove(entity);
+		if (entity instanceof MinorPlanet)
+			this.minorPlanets.remove(entity);
+		entity.setWorld(null);
+	}
+
+
+
 package asteroids.model;
 
 import java.util.HashSet;
