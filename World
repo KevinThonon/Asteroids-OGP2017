@@ -3,8 +3,6 @@ package asteroids.model;
 import java.util.HashSet;
 import java.util.Set;
 
-
-
 public class World {
 	
 	public double width;
@@ -68,7 +66,6 @@ public class World {
 		return this.bullets;
 	}
 	
-	
 	private Set<Bullet> bullets = new HashSet<Bullet>();
 	
 	public Set<MinorPlanet> getMinorPlanets(){
@@ -105,6 +102,9 @@ public class World {
 		for (Bullet bullet: getBullets()){
 			if (ship1.overlap(ship1,bullet))
 			    return false;}
+		for (MinorPlanet minorPlanet: getMinorPlanets()) {
+			if (ship1.overlap(ship1,minorPlanet))
+				return false;}
 		if (ship1.getWorld() == this || ship1.getWorld() == null ) 
 			return true;
 		return false;
@@ -154,6 +154,9 @@ public class World {
 		for (Ship ship: getShips()) {
 			if (bullet1.overlap(bullet1,ship))
 				return false;}
+		for (MinorPlanet minorPlanet: getMinorPlanets()) {
+			if (bullet1.overlap(bullet1,minorPlanet))
+				return false;}
 		if (bullet1.getWorld() == this || bullet1.getWorld() == null )
 			return true;
 		return false;
@@ -185,6 +188,58 @@ public class World {
 		if (bullet.getWorld() != this) throw new IllegalArgumentException("This bullet isn't in this world");
 		this.bullets.remove(bullet);
 		bullet.setWorld(null);
+	}
+	
+	/**
+	 * Check whether this world can have minorPlanet1 as minor planet.
+	 * @param minorPlanet1
+	 * 		A minor planet.
+	 * @return if (minorPlanet1.overlap((MinorPlanet)minorPlanet1,(MinorPlanet)minorPlanet2)) return false
+	 * @return if (minorPlanet1.overlap((MinorPlanet)minorPlanet1,(Bullet)bullet)) return false
+	 * @return if (minorPlanet1.getWorld() == this || minorPlanet1.getWorld() == null ) return true
+	 * @return else return false
+	 */
+	private boolean canHaveAsMinorPlanet(MinorPlanet minorPlanet1) {
+		for (MinorPlanet minorPlanet2: getMinorPlanets()){
+			if (minorPlanet1.overlap(minorPlanet1, minorPlanet2))
+				return false;}
+		for (Bullet bullet: getBullets()){
+			if (minorPlanet1.overlap(minorPlanet1,bullet))
+			    return false;}
+		for (Ship ship: getShips()){
+			if (minorPlanet1.overlap(minorPlanet1,ship))
+			    return false;}
+		if (minorPlanet1.getWorld() == this || minorPlanet1.getWorld() == null ) 
+			return true;
+		return false;
+	}
+	
+	/**
+	 * It adds a minor planet to this world.
+	 * @param minorPlanet
+	 * @throws IllegalArgumentException
+	 * 		if (!canHaveAsMinorPlanet(minorPlanet))
+	 * @post this.minorPlanets.add(minorPlanet)
+	 * @post minorPlanet.setWorld(this)
+	 */
+	public void addMinorPlanet(MinorPlanet minorPlanet) {
+		if (!canHaveAsMinorPlanet(minorPlanet)) throw new IllegalArgumentException("The world can't have this minorPlanet.");
+		this.minorPlanets.add(minorPlanet);
+		minorPlanet.setWorld(this);
+	}
+	
+	/**
+	 * It removes a minor planet from this world.
+	 * @param minorPlanet
+	 * @throws IllegalArgumentException
+	 * 		if (minorPlanet.getWorld() != this)
+	 * @post this.minorPlanets.remove(bullet)
+	 * @post minorPlanet.setWorld(null);
+	 */
+	public void removeMinorPlanet(MinorPlanet minorPlanet) {
+		if (minorPlanet.getWorld() != this) throw new IllegalArgumentException("This minor planet isn't in this world");
+		this.minorPlanets.remove(minorPlanet);
+		minorPlanets.setWorld(null);
 	}
 	
 	public void removeEntity(Entity entity) {
@@ -219,6 +274,18 @@ public class World {
 	 */
     public boolean isShipClass(Entity entity){
     	if (entity instanceof Ship)
+    		return true;
+    	return false;
+    }
+    
+    /**
+	 * Checks whether the entity is a MinorPlanet.
+	 * @param entity
+	 * @return if (entity instanceof MinorPlanet) return true
+	 * @return else return false
+	 */
+    public boolean isMinorPlanetClass(Entity entity){
+    	if (entity instanceof MinorPlanet)
     		return true;
     	return false;
     }
@@ -353,6 +420,9 @@ public class World {
 		for (Bullet bullet: this.getBullets()){
 			bullet.move(time);
 		}
+		for (MinorPlanet minorPlanet: this.getMinorPlanets()){
+			minorPlanet.move(time);
+		}
 	}
 	
 	/**
@@ -368,6 +438,7 @@ public class World {
 			}
 		this.bullets.clear();
 		this.ships.clear();
+		this.minorPlanets.clear();
 		}
 	
 	/**
@@ -376,7 +447,7 @@ public class World {
 	 * @return else false;
 	 */
 	public boolean isDestoyedWorld(){
-		if (bullets.size()==0 && ships.size()==0)
+		if (bullets.size()==0 && ships.size()==0 &&minorPlanets.size()==0)
 			return true;
 		return false;
 	}
