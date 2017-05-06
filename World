@@ -71,6 +71,12 @@ public class World {
 	
 	private Set<Bullet> bullets = new HashSet<Bullet>();
 	
+	public Set<MinorPlanet> getMinorPlanets(){
+		return this.minorPlanets;
+	}
+	
+	private Set<MinorPlanet> minorPlanets = new HashSet<MinorPlanet>();
+	
 	/**
 	 * Returns a set of all the entities in this world.
 	 * @return this.entities
@@ -79,10 +85,10 @@ public class World {
     	Set<Entity> entitys = new HashSet<Entity>();
 		entitys.addAll(getBullets());
 		entitys.addAll(getShips());
+		entitys.addAll(getMinorPlanets());
 		return entitys;
 	}
- 
-	
+
 	/**
 	 * Check whether this world can have ship1 as ship.
 	 * @param ship1
@@ -180,6 +186,18 @@ public class World {
 		this.bullets.remove(bullet);
 		bullet.setWorld(null);
 	}
+	
+	public void removeEntity(Entity entity) {
+		if (entity.getWorld() != this) throw new IllegalArgumentException();
+		if (entity instanceof Ship)
+			this.ships.remove(entity);
+		if (entity instanceof Bullet)
+			this.bullets.remove(entity);
+		if (entity instanceof MinorPlanet)
+			this.minorPlanets.remove(entity);
+		entity.setWorld(null);
+	}
+	
 	
 	/**
 	 * Checks whether the entity is a bullet.
