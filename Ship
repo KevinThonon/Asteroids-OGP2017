@@ -242,8 +242,7 @@ public class Ship extends Entity{
 	 * 		If the provided bullet isn't valid throw an error
 	 */
 	public void addBullet(Bullet bullet){
-		if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
-	
+		if (!(isValidBullet(bullet))) throw new IllegalArgumentException("Isn't a valid bullet");
 		bullet.setShip(this);
 		bullet.setPosition(this.getPosition());
 		bullet.setWorld(this.getWorld());
@@ -258,10 +257,7 @@ public class Ship extends Entity{
 	 * 		If one of the provided bullets isn't valid throw an error
 	 */
 	public void addBullets(Collection<Bullet>bullets2){
-		for (Bullet bullet : bullets2)
-			if (!(isValidBullet(bullet))) throw new IllegalArgumentException();
-			else
-				this.addBullet(bullet);
+		for (Bullet bullet : bullets2) this.addBullet(bullet);
 	}
 	
 	/**
@@ -272,9 +268,9 @@ public class Ship extends Entity{
 	 * 		If the provided bullet isn't valid throw an error
 	 */
 	public void removeBullet(Bullet bullet){
-		if (bullet.getShip() != this) throw new IllegalArgumentException();
+		if (bullet.getShip() != this) throw new IllegalArgumentException("Not a bullet of this ship.");
 		else
-			bullet.getWorld().removeBullet(bullet);
+			bullet.getWorld().removeEntity(bullet);
 	}
 	
 	/**
@@ -285,10 +281,7 @@ public class Ship extends Entity{
 	 * 		If one of the bullets isn't valid throw an error
 	 */
 	public void removeBullets(Bullet... bullets){
-		for (Bullet bullet : bullets)
-			if (bullet.getShip() != this) throw new IllegalArgumentException();
-			else
-				bullet.getWorld().removeBullet(bullet);
+		for (Bullet bullet : bullets) bullet.getWorld().removeEntity(bullet);
 	}
 	
 	/**
@@ -297,8 +290,9 @@ public class Ship extends Entity{
 	 * 		The number of bullets
 	 */
 	public int getNumberOfBullets(){
-		return bullets.size();
+		return this.bullets.size();
 	}
+	
 	
 	/**
 	 * Fire one of the ships bullets.
@@ -322,7 +316,6 @@ public class Ship extends Entity{
 		if (this.getNumberOfBullets() == 0)
 			return;
 		Bullet firedBullet = this.getBullets().iterator().next();
-		if (this.getWorld().isBulletClass(firedBullet)) throw new IllegalArgumentException("not a bullet");
 		double bulletXPosition = this.getPosition()[0] + (this.getRadius()+firedBullet.getRadius()) * Math.cos(this.getOrientation());
 		double bulletYPosition = this.getPosition()[1] + (this.getRadius()+firedBullet.getRadius()) * Math.sin(this.getOrientation());
 		double bulletXSpeed = 250 * Math.cos(this.getOrientation()) + this.getSpeed()[0];
@@ -462,22 +455,5 @@ public class Ship extends Entity{
 		}
 	}
 	
-	/**
-	 * Terminate a ship, this means set his world to null, moving it to an unbounded world.
-	 */
-	public void terminateShip(){
-		this.setWorld(null);
-	}
-	
-	/**
-	 * Check if a ship is terminated, in other words, if it doesn't belong to a world.
-	 * @return
-	 * 		A boolean stating if the ship belongs to world or not
-	 */
-	public boolean isTerminatedShip(){
-		if (this.getWorld() == null){
-			return true;
-		}
-		return false;
-	}
+}
 }
