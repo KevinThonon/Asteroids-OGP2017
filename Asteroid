@@ -1,0 +1,24 @@
+package asteroids.model;
+
+public class Asteroid extends MinorPlanet {
+	public Asteroid(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
+			throws IllegalArgumentException {
+		super(xPosition, yPosition, xSpeed, ySpeed, radius);
+	}
+	
+	final private static double densityAsteroid = 2.65E12;
+	
+	public double getDensity(){
+		return densityAsteroid;
+	}
+	
+	public void move(double duration){
+		setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration});
+	}
+	
+	
+	public double getMass(){
+		double mass = (4/3)*Math.PI*Math.pow(super.getRadius(),3)*this.getDensity();
+		return mass;
+	}
+}
