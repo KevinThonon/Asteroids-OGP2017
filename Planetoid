@@ -1,0 +1,43 @@
+package asteroids.model;
+
+public class Planetoid extends MinorPlanet {
+	
+	public Planetoid(double xPosition, double yPosition, double xSpeed, double ySpeed, 
+			double radius)
+			throws IllegalArgumentException {
+		super(xPosition, yPosition, xSpeed, ySpeed, radius);
+	}
+	
+	private double totalTravelDistance = 0;
+	
+	public double getTotalTravelledDistance(){
+		return this.totalTravelDistance;
+	}
+	
+	public void setTotalTravelledDistance(double totalTravelDistance){
+		this.totalTravelDistance = totalTravelDistance;
+	}
+	public void move(double duration) throws IllegalArgumentException{
+		if (!isValidDuration(duration)) throw new IllegalArgumentException();
+		
+		setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration});
+		double distanceTravelled = duration*super.getTotalSpeed();
+		this.setTotalTravelledDistance(totalTravelDistance + distanceTravelled);
+		super.setRadius(super.getRadius() - distanceTravelled*0.000001);
+		if (super.getRadius() < 5)
+			super.terminate();
+	}
+	
+	final private static double densityPlanetoid = 0.917E12;
+	
+	public double getDensity(){
+		return densityPlanetoid;
+	}
+	
+	public double getMass(){
+		double mass = (4/3)*Math.PI*Math.pow(super.getRadius(),3)*this.getDensity();
+		return mass;
+	}
+	
+	
+}
