@@ -1,5 +1,12 @@
 package asteroids.model;
 
+/**
+ * Hoe zit het met this.getPosistion of super.getPosistion? Werkt toch ook met this?
+ * @author jefjonkers
+ *
+ */
+
+
 public class Bullet extends Entity{
 	
 	/**
@@ -174,24 +181,6 @@ public class Bullet extends Entity{
 			setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration});
 		}	
 	}
-	
-	/**
-	 * It terminates the bullet, removes the bullet from the world.
-	 * @post this.setWorld(null);
-	 */
-	public void terminateBullet(){
-		this.setWorld(null);
-	}
-	
-	/**
-	 * Checks whether the bullet is terminated.
-	 * @return if (this.getWorld() == null) return true
-	 * @return else false
-	 */
-	public boolean isTerminatedBullet(){
-		if (this.getWorld() == null){
-			return true;
-		}
-		return false;
-	}
 }
+	
+
