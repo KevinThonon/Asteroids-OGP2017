@@ -93,11 +93,13 @@ public class Entity {
 	 * @return The speed of the ship.
 	 */
 	public double[] getSpeed(){
-		return this.speed;
+		return new double[] {this.xSpeed,this.ySpeed};
 	}
 	
-	private double[] speed = new double[2];
-	
+	public double getTotalSpeed(){
+		double speed = Math.sqrt(Math.pow(this.getSpeed()[0], 2) + Math.pow(this.getSpeed()[1], 2));
+		return speed;
+	}
 	/**
 	 * Check whether the speed is valid
 	 * @param speed
@@ -122,14 +124,17 @@ public class Entity {
 		    return false;
 		return true;
 	}
-	private double reducer;
 	
+	public double orientationOfSpeed(){
+		double tangens = this.ySpeed/this.xSpeed;
+		return Math.atan(Math.tan(tangens));
+	}
 	/**
 	 * @param speed
 	 * 			The speed of the x-coordinate and the speed of the y-coordinate of the entity.
 	 * @post If provided speed isn't valid, it turns into zero.
 	 * @post If the speed of the x-coordinate is NaN, it turns into zero.
-	 * @post If the speed of the y-coordinate is NaN, it turns into zero.
+	 * @post If the speed of the y-coordinate is NaN, it turns into zero. 
 	 * @post If the given speed is equal or smaller then the speed of light, 
 	 * the speed of the entity will be the given the provided speed.
 	 * @post If the given speed is faster than the speed of light, the new speed will be in the same direction as the
@@ -142,15 +147,13 @@ public class Entity {
 			speed[1] = 0;
 		}
 			
-		if (Math.sqrt(Math.pow( xSpeed , 2) + Math.pow(ySpeed, 2) ) <= MaxSpeed){
-			this.speed = speed;
+		if (Math.sqrt(Math.pow( speed[0] , 2) + Math.pow(speed[1], 2) ) <= MaxSpeed){
+			this.xSpeed = speed[0];
+			this.ySpeed = speed[1];
 		}
 		else{
-			reducer =  MaxSpeed / (Math.pow(xSpeed,2) + Math.pow(ySpeed, 2)) ;
-			if (reducer == 0) throw new IllegalArgumentException();
-			xSpeed *= reducer;
-			ySpeed *= reducer;
-			this.speed = new double[] {xSpeed,ySpeed};	
+			this.xSpeed = MaxSpeed*Math.cos(this.orientationOfSpeed());
+			this.ySpeed = MaxSpeed*Math.sin(this.orientationOfSpeed());
 		}
 	}
 	
@@ -199,7 +202,10 @@ public class Entity {
 			throw new IllegalArgumentException();
 		if (isValidEntity(entity2) == false)
 			throw new IllegalArgumentException();
-		return (Math.sqrt(Math.pow(entity1.xPosition - entity2.xPosition, 2) + Math.pow(entity1.yPosition - entity2.yPosition, 2)) - entity1.radius - entity2.radius); 
+		if (entity1.getPosition() == entity2.getPosition())
+			return 0;
+		return (Math.sqrt(Math.pow(entity1.getPosition()[0] - entity2.getPosition()[0], 2) +
+				Math.pow(entity1.getPosition()[1] - entity2.getPosition()[1], 2)) -entity1.getRadius() - entity2.getRadius()); 
 	}
 	
 	/**
@@ -336,96 +342,96 @@ public class Entity {
 		return ((vector1[0] * vector2[0]) + (vector1[1] * vector2[1]));
 	}
 	
-		/**
-	 * Helper function for getTimeToCollision
-	 * @param entity1
-	 * @param entity2
-	 * @return
-	 * 		|(Math.pow(entity1.getPosition()[0]-entity2.getPosition()[0],2)+Math.pow(entity1.getPosition()[1]-entity2.getPosition()[1],2))
-	 */
-	private double dotProductPosition(Entity entity1, Entity entity2){
-		return (Math.pow(entity1.getPosition()[0]-entity2.getPosition()[0],2)+Math.pow(entity1.getPosition()[1]-entity2.getPosition()[1],2));
-	}
-	
 	/**
-	 * Helper function for getTimeToCollision
-	 * @param entity1
-	 * @param entity2
-	 * @return
-	 * 		|(Math.pow(entity1.getSpeed()[0]-entity2.getSpeed()[0],2)+Math.pow(entity1.getSpeed()[1]-entity2.getSpeed()[1],2))
-	 */
-	private double dotProductSpeed(Entity entity1, Entity entity2){
-		return (Math.pow(entity1.getSpeed()[0]-entity2.getSpeed()[0],2)+Math.pow(entity1.getSpeed()[1]-entity2.getSpeed()[1],2));
-	}
-	
-	/**
-	 * Helper function for getTimeToCollision
-	 * @param entity1
-	 * @param entity2
-	 * @return
-	 * 		|((entity2.getPosition()[0]-entity1.getPosition()[0])*(entity2.getSpeed()[0]-entity1.getSpeed()[0])+
-				(entity2.getPosition()[1]-entity1.getPosition()[1])*(entity2.getSpeed()[1]-entity1.getSpeed()[1]))
-	 */
-	private double dotProductPositionSpeed(Entity entity1, Entity entity2){
-		return ((entity2.getPosition()[0]-entity1.getPosition()[0])*(entity2.getSpeed()[0]-entity1.getSpeed()[0])+
-				(entity2.getPosition()[1]-entity1.getPosition()[1])*(entity2.getSpeed()[1]-entity1.getSpeed()[1]));
-	}
-	
-	/**
-	 * This function registers a certain value that is used in the collision function, if it is negative,
-	 * the entities will never collide, if it is positive they will collide
-	 * @param entity1
-	 * 		First entity
-	 * @param entity2
-	 * 		Second entity
-	 * @return
-	 * 		The value d
-	 * 		|Math.pow(entity1.dotProductPositionSpeed(entity1, entity2), 2) - 
-				(entity1.dotProductSpeed(entity1, entity2)) * 
-				((entity1.dotProductPosition(entity1, entity2))
-				- Math.pow(entity1.distanceBetweenCentersAtCollision(entity1, entity2), 2))
-	 */
-	private double d(Entity entity1, Entity entity2){
-		return Math.pow(entity1.dotProductPositionSpeed(entity1, entity2), 2) - 
-				(entity1.dotProductSpeed(entity1, entity2)) * 
-				((entity1.dotProductPosition(entity1, entity2))
-				- Math.pow(entity1.distanceBetweenCentersAtCollision(entity1, entity2), 2));
-	}
-	
-	/**
-	 * This method will give at what time in the future 2 entities would collide if they were to continue forward without changing direction
-	 * or accelerating/slow down
-	 * @param entity1
-	 * 		The first entity of the 2 entities we are comparing
-	 * @param entity2
-	 * 		The second entity of the 2 entities we are comparing
-	 * @return
-	 * 		If the entities never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
-	 * 		If they would collapse the function will return a duration described as a double.
-	 * 		|(-(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2)) + Math.sqrt(entity1.d(entity1, entity2)))
-					/ dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaSpeed(entity1, entity2)))
-	 * @throws IllegalArgumentException
-	 * 		If one or both of the entities are not valid entities then the function will give an error
-	 */
-	public double getTimeToCollision(Entity entity1, Entity entity2) throws IllegalArgumentException{
-		if (isValidEntity(entity1) == false)
-			throw new IllegalArgumentException();
-		if (isValidEntity(entity2) == false)
-			throw new IllegalArgumentException();
-		if ((dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2))) > 0)
+ * Helper function for getTimeToCollision
+ * @param entity1
+ * @param entity2
+ * @return
+ * 		|(Math.pow(entity1.getPosition()[0]-entity2.getPosition()[0],2)+Math.pow(entity1.getPosition()[1]-entity2.getPosition()[1],2))
+ */
+private double dotProductPosition(Entity entity1, Entity entity2){
+	return (Math.pow(entity1.getPosition()[0]-entity2.getPosition()[0],2)+Math.pow(entity1.getPosition()[1]-entity2.getPosition()[1],2));
+}
+
+/**
+ * Helper function for getTimeToCollision
+ * @param entity1
+ * @param entity2
+ * @return
+ * 		|(Math.pow(entity1.getSpeed()[0]-entity2.getSpeed()[0],2)+Math.pow(entity1.getSpeed()[1]-entity2.getSpeed()[1],2))
+ */
+private double dotProductSpeed(Entity entity1, Entity entity2){
+	return (Math.pow(entity1.getSpeed()[0]-entity2.getSpeed()[0],2)+Math.pow(entity1.getSpeed()[1]-entity2.getSpeed()[1],2));
+}
+
+/**
+ * Helper function for getTimeToCollision
+ * @param entity1
+ * @param entity2
+ * @return
+ * 		|((entity2.getPosition()[0]-entity1.getPosition()[0])*(entity2.getSpeed()[0]-entity1.getSpeed()[0])+
+			(entity2.getPosition()[1]-entity1.getPosition()[1])*(entity2.getSpeed()[1]-entity1.getSpeed()[1]))
+ */
+private double dotProductPositionSpeed(Entity entity1, Entity entity2){
+	return ((entity2.getPosition()[0]-entity1.getPosition()[0])*(entity2.getSpeed()[0]-entity1.getSpeed()[0])+
+			(entity2.getPosition()[1]-entity1.getPosition()[1])*(entity2.getSpeed()[1]-entity1.getSpeed()[1]));
+}
+
+/**
+ * This function registers a certain value that is used in the collision function, if it is negative,
+ * the entities will never collide, if it is positive they will collide
+ * @param entity1
+ * 		First entity
+ * @param entity2
+ * 		Second entity
+ * @return
+ * 		The value d
+ * 		|Math.pow(entity1.dotProductPositionSpeed(entity1, entity2), 2) - 
+			(entity1.dotProductSpeed(entity1, entity2)) * 
+			((entity1.dotProductPosition(entity1, entity2))
+			- Math.pow(entity1.distanceBetweenCentersAtCollision(entity1, entity2), 2))
+ */
+private double d(Entity entity1, Entity entity2){
+	return Math.pow(entity1.dotProductPositionSpeed(entity1, entity2), 2) - 
+			(entity1.dotProductSpeed(entity1, entity2)) * 
+			((entity1.dotProductPosition(entity1, entity2))
+			- Math.pow(entity1.distanceBetweenCentersAtCollision(entity1, entity2), 2));
+}
+
+/**
+ * This method will give at what time in the future 2 entities would collide if they were to continue forward without changing direction
+ * or accelerating/slow down
+ * @param entity1
+ * 		The first entity of the 2 entities we are comparing
+ * @param entity2
+ * 		The second entity of the 2 entities we are comparing
+ * @return
+ * 		If the entities never collide this function will return positive infinity (Double.POSITIVE_INFINITY)
+ * 		If they would collapse the function will return a duration described as a double.
+ * 		|(-(dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2)) + Math.sqrt(entity1.d(entity1, entity2)))
+				/ dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaSpeed(entity1, entity2)))
+ * @throws IllegalArgumentException
+ * 		If one or both of the entities are not valid entities then the function will give an error
+ */
+public double getTimeToCollision(Entity entity1, Entity entity2) throws IllegalArgumentException{
+	if (isValidEntity(entity1) == false)
+		throw new IllegalArgumentException();
+	if (isValidEntity(entity2) == false)
+		throw new IllegalArgumentException();
+	if ((dotProduct(entity1.deltaSpeed(entity1, entity2),entity1.deltaPosition(entity1, entity2))) > 0)
+		return Double.POSITIVE_INFINITY;
+	if ((entity1.d(entity1, entity2)) < 0)
+		return Double.POSITIVE_INFINITY;
+	if (entity1.dotProductSpeed(entity1, entity2) == 0){
+		if (entity1.overlap(entity1, entity2))
+			return 0;
+		else 
 			return Double.POSITIVE_INFINITY;
-		if ((entity1.d(entity1, entity2)) < 0)
-			return Double.POSITIVE_INFINITY;
-		if (entity1.dotProductSpeed(entity1, entity2) == 0){
-			if (entity1.overlap(entity1, entity2))
-				return 0;
-			else 
-				return Double.POSITIVE_INFINITY;
-		}		
-		else
-			return ((-entity1.dotProductPositionSpeed(entity1, entity2) + Math.sqrt(entity1.d(entity1, entity2)))
-					/ entity1.dotProductSpeed(entity1, entity2));
-	}
+	}		
+	else
+		return ((-entity1.dotProductPositionSpeed(entity1, entity2) + Math.sqrt(entity1.d(entity1, entity2)))
+				/ entity1.dotProductSpeed(entity1, entity2));
+}
 	
 	/**
 	 * This function will return the center of the first entity at the time of collision.
@@ -446,7 +452,7 @@ public class Entity {
 		if (entity1.significantOverlap(entity1, entity2))
 			throw new IllegalArgumentException();
 		if (getTimeToCollision(entity1, entity2) == Double.POSITIVE_INFINITY)
-			return null;
+			return new double[] {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
 		else
 			return new double[] {entity1.xPosition + entity1.xSpeed*getTimeToCollision(entity1, entity2),entity1.yPosition + entity1.ySpeed*getTimeToCollision(entity1, entity2)};
 	}
@@ -588,5 +594,16 @@ public class Entity {
 	 */
 	public void setWorld(World world){
 		this.world = world;
+	}
+	
+	public void terminate(){
+		getWorld().removeEntity(this);
+	}
+	
+	public boolean isTerminated(){
+		if (this.getWorld() == null){
+			return true;
+		}
+		return false;
 	}
 }
