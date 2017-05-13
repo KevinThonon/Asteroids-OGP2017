@@ -1,0 +1,29 @@
+/**
+ * 
+ */
+package asteroids.model;
+
+/**
+ * @author jefjonkers
+ *
+ */
+public class MinorPlanet extends Entity {
+	public MinorPlanet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
+			throws IllegalArgumentException {
+		super(xPosition, yPosition, xSpeed, ySpeed);
+		this.setRadius(radius);
+	}
+	
+	private double radius;
+	
+	public double getRadius(){
+		return radius;
+	}
+	
+	protected void setRadius(double radius) throws IllegalArgumentException{
+		if ((radius < 5) || (radius >= Double.POSITIVE_INFINITY)) 
+			throw new IllegalArgumentException("radius is smaller than five or (bigger or the same as Positive infinity");
+		this.radius = radius;
+	}
+	
+}
