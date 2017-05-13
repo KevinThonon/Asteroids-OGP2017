@@ -140,8 +140,8 @@ public final class Collision{
 				ship.addBullet(bullet);
 			}
 			else{
-				bullet.getWorld().removeBullet(bullet);;
-				ship.getWorld().removeShip(ship);
+				bullet.getWorld().removeEntity(bullet);;
+				ship.getWorld().removeEntity(ship);
 			}
 		}
 		else{
@@ -151,8 +151,8 @@ public final class Collision{
 				ship.addBullet(bullet);
 			}
 			else{
-				bullet.getWorld().removeBullet(bullet);;
-				ship.getWorld().removeShip(ship);
+				bullet.getWorld().removeEntity(bullet);;
+				ship.getWorld().removeEntity(ship);
 			}
 		}
 	}
@@ -190,7 +190,7 @@ public final class Collision{
 		Bullet bullet = (Bullet)getEntity1();
 		bullet.substractBounce();
 		if (bullet.residualbounces == 0){
-			bullet.getWorld().removeBullet(bullet);;
+			bullet.getWorld().removeEntity(bullet);;
 		}
 		else{
 			if (bullet.getPosition()[0] - bullet.getRadius() <= EPSILON || 
@@ -228,9 +228,9 @@ public final class Collision{
 	
 	public void betweenAsteroidShip(){
 		if (this.getEntity1() instanceof Ship)
-			this.getEntity1().getWorld().removeShip((Ship)this.getEntity1());
+			this.getEntity1().getWorld().removeEntity((Ship)this.getEntity1());
 		else
-			this.getEntity2().getWorld().removeShip((Ship)this.getEntity2());
+			this.getEntity2().getWorld().removeEntity((Ship)this.getEntity2());
 	}
 	
 	public void betweenPlanetoidShip(){
@@ -239,7 +239,7 @@ public final class Collision{
 			double posy = Math.random()*this.getEntity1().getWorld().getHeigth();
 			double[] pos = {posx,posy};
 			this.getEntity1().setPosition(pos);
-			if (!(this.getEntity1().getWorld().canHaveAsShip((Ship)this.getEntity1())))
+			if (!(this.getEntity1().getWorld().canHaveAsEntity((Ship)this.getEntity1())))
 				this.getEntity1().terminate();
 		}
 		else{
@@ -247,7 +247,7 @@ public final class Collision{
 			double posy = Math.random()*this.getEntity1().getWorld().getHeigth();
 			double[] pos = {posx,posy};
 			this.getEntity1().setPosition(pos);
-			if (!(this.getEntity1().getWorld().canHaveAsShip((Ship)this.getEntity1())))
+			if (!(this.getEntity1().getWorld().canHaveAsEntity((Ship)this.getEntity1())))
 				this.getEntity1().terminate();
 		}
 	}
