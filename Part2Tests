@@ -1,3 +1,4 @@
+
 package asteroids.tests;
 
 import static org.junit.Assert.*;
@@ -35,7 +36,7 @@ public class Part2Tests {
 		assertTrue(facade.getWorldBullets(world).isEmpty());
 	}
 	
-	@Test(expected = ModelException.class)
+	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void testCreateShipNan() throws ModelException{
 		facade.createShip(Double.NaN, 464646, -50, -50, 50, Math.PI, 5000000);
 	}
@@ -68,7 +69,7 @@ public class Part2Tests {
 		assertEquals(350, yPosition, EPSILON);
 	}
 	
-	@Test(expected = ModelException.class)
+	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void testMoveInvalid() throws ModelException {
 		Ship ship = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
 		ship.move(-5);
@@ -89,14 +90,14 @@ public class Part2Tests {
 		Ship ship1 = facade.createShip(50000, 100000, 50000, 0, 50, 0, 5000000);
 		Ship ship2 = facade.createShip(100000, 100000, 50000, 0, 50, 0, 5000000);
 		double distance = facade.getDistanceBetween(ship1, ship2);
-		assertEquals(49900, distance, EPSILON);
+		assertEquals(50000, distance, EPSILON);
 	}
 	
 	@Test
 	public void testGetDistanceBetween2() throws ModelException {
 		Ship ship1 = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
 		Ship ship2 = facade.createShip(500, 300, 10, 10, 50, Math.PI, 5000000);
-		assertEquals(Math.sqrt(Math.pow(400, 2)+Math.pow(200, 2))-50-50, ship1.getDistanceBetween(ship1, ship2), EPSILON);
+		assertEquals(Math.sqrt(Math.pow(400, 2)+Math.pow(200, 2)), ship1.getDistanceBetween(ship1, ship2), EPSILON);
 	}
 	
 	@Test
@@ -105,18 +106,15 @@ public class Part2Tests {
 		assertEquals(0,ship1.getDistanceBetween(ship1,ship1),EPSILON);
 	}
 
-	@Test(expected = ModelException.class)
-	public void testGetDistanceBetweenDeadShipAndValidShip() throws ModelException {
-		World world = facade.createWorld(5000, 5000);
+	@Test
+	public void testGetDistanceBetween5() throws ModelException {
 		Ship ship1 = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
-		Ship ship2 = facade.createShip(200, 200, 10, 10, 100, Math.PI, 5000000);
-		facade.addShipToWorld(world, ship1);
-		facade.addShipToWorld(world, ship2);
-		ship2.terminateShip();
-		ship1.getDistanceBetween(ship1, ship2);
+		Ship ship2 = facade.createShip(400, 500, 10, 10, 100, Math.PI, 5000000);
+		double Distance = ship1.getDistanceBetween(ship1, ship2);
+		assertEquals(500,Distance,EPSILON);
 	}
 
-	@Test(expected = ModelException.class)
+	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void testGetDistanceBetweenInvalidShip() throws ModelException {
 		Ship ship1 = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
 		Ship ship2 = facade.createShip(100, 100, 10, 10, -50, Math.PI, 5000000);
@@ -166,7 +164,7 @@ public class Part2Tests {
 		assertEquals(Double.POSITIVE_INFINITY, time, EPSILON);
 	}
 	
-	@Test(expected = ModelException.class)
+	@Test(expected = java.lang.NullPointerException.class)
 	public void testGetTimeToCollision4() throws ModelException {
 		Ship ship1 = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
 		Ship ship2 = null;
@@ -189,15 +187,18 @@ public class Part2Tests {
 		assertEquals(150, ship1.getCollisionPosition(ship1, ship2)[0], EPSILON);
 		assertEquals(100, ship1.getCollisionPosition(ship1, ship2)[1], EPSILON);
 	}
-	
+
 	@Test
+	//Hoe kan dees eigenlijk zeer raar.
 	public void testGetCollisionPosition3() throws ModelException {
 		Ship ship1 = facade.createShip(1000, 0, -10, -100, 50, 0, 5000000);
 		Ship ship2 = facade.createShip(0, 0, 10, 100, 50, 0, 5000000);
-		assertEquals(Double.POSITIVE_INFINITY, ship1.getCollisionPosition(ship1, ship2));
+		double [] position = ship1.getCollisionPosition(ship1, ship2);
+		double[] solution = {Double.POSITIVE_INFINITY,Double.POSITIVE_INFINITY};
+		assertEquals(solution,position);
 	}
 	
-	@Test(expected = ModelException.class)
+	@Test(expected = java.lang.NullPointerException.class)
 	public void testGetCollisionPosition4() throws ModelException {
 		Ship ship1 = facade.createShip(100, 100, 10, 10, 50, 0, 5000000);
 		Ship ship2 = null;
@@ -216,16 +217,31 @@ public class Part2Tests {
 	}
 	
 	@Test
+	public void testTimeToBoundaryCollision() throws ModelException{
+		Ship ship = facade.createShip(950, 100, 10, 0, 10, 0,500000);
+		World world = facade.createWorld(1000, 1000);
+		ship.setWorld(world);
+		double time = ship.timeToBoundaryCollision();
+		assertEquals(4,time, EPSILON);
+	}
+	
+	@Test
 	public void testIsTerminated() throws ModelException {
 		Ship ship = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
-		assert (!(ship.isTerminatedShip()));
+		World world = facade.createWorld(1000, 1000);
+		ship.setWorld(world);
+		assert (!(ship.isTerminated()));
+		ship.terminate();
+		assert (ship.isTerminated());
 	}
 	
 	@Test
 	public void testTerminate() throws ModelException {
 		Ship ship = facade.createShip(100, 100, 10, 10, 50, Math.PI, 5000000);
-		ship.terminateShip();
-		assert (ship.isTerminatedShip());
+		World world = facade.createWorld(1000, 1000);
+		ship.setWorld(world);
+		ship.terminate();
+		assert (ship.isTerminated());
 	}
 	
 	@Test
@@ -296,4 +312,5 @@ public class Part2Tests {
 	}
 
 }
+
 
