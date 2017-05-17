@@ -122,12 +122,12 @@ public class Ship extends Entity{
 	 */
 	public void turn(double changeInOrientation){
 		assert(isValidOrientation(this.orientation));
-		assert(isValidOrientation(changeInOrientation));
+		assert( Math.abs(changeInOrientation) < 2*Math.PI);
 		newTemporaryOrientation = (this.orientation + changeInOrientation);
-		if (newTemporaryOrientation < 0) 
-			this.orientation = newTemporaryOrientation + 2*Math.PI;
-		if (newTemporaryOrientation > 2*Math.PI)
-			this.orientation = newTemporaryOrientation - 2*Math.PI;
+		if (newTemporaryOrientation < 0)
+			this.setOrientation(newTemporaryOrientation + 2*Math.PI);
+		else if (newTemporaryOrientation > 2*Math.PI)
+			this.setOrientation(newTemporaryOrientation - 2*Math.PI);
 		else
 			this.orientation = newTemporaryOrientation;
 	}
@@ -455,5 +455,4 @@ public class Ship extends Entity{
 		}
 	}
 	
-}
 }
