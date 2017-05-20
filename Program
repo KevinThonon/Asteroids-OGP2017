@@ -1,0 +1,95 @@
+package asteroids.model;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+
+import asteroids.model.Expressions.*;
+import asteroids.model.*;
+import asteroids.part3.programs.SourceLocation;
+
+public class Program {
+
+	private SourceLocation currentLocation = new SourceLocation(0,0);
+	private List<Function> functions;
+	private Statement main;
+	private Set<Variable> variables = new HashSet<Variable>();
+	private List<Object> results = new ArrayList<Object>();
+	private double timeLeftToExecute = 0;
+
+	public Program(List<Function> functions, Statement main){
+		this.functions = functions;
+		this.main = main;
+		main.setProgram(this);
+		for (Function function: functions) 
+			function.setProgram(this);
+		System.out.println(main.toString());
+	}
+	
+	public List<Object> execute(double dt){
+		timeLeftToExecute += dt;
+		main.execute();
+		if (!main.failedToAdvanceTime()) {
+			currentLocation = new SourceLocation(0, 0);
+			List<Object> resultsToThrow = results;
+			results = null;
+			return resultsToThrow;
+		}
+		return null;
+	}
+	
+	private Ship ship;
+	
+	public Ship getShip(){
+		return ship;
+	}
+
+	public void setShip(Ship ship){
+		if(!(ship.getProgram() == this)) throw new IllegalArgumentException();
+		this.ship = ship;
+	}
+
+	public List<Object> getResults(){
+		return results;
+	}
+
+	public Object getVariable(String variableName) throws NoSuchElementException{
+		return getVariables().stream().filter(variable -> variable.getName().equals(variableName)).findFirst().get().getValue();
+	}
+	
+	public void addVariable(Variable variable){
+		variables.add(variable);
+	}
+
+	public void advanceTimer(){
+		timeLeftToExecute = timeLeftToExecute - 0.2;
+	}
+
+	public double getTimeLeftToExecute(){
+		return timeLeftToExecute;
+	}
+
+	public void addResult(Object result){
+		results.add(result);
+	}
+
+	public SourceLocation getCurrentLocation(){
+		return currentLocation;
+	}
+
+	public void setCurrentLocation(SourceLocation currentLocation){
+		this.currentLocation = currentLocation;
+	}
+
+	public Set<Variable> getVariables(){
+		return new HashSet<Variable>(variables);
+	}
+
+	public Function getFunction(String functionName) throws NoSuchElementException{
+		return this.functions.stream().filter(function -> function.getName().equals(functionName)).reduce((first, second) -> second).get();
+	}
+
+}
