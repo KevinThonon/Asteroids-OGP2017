@@ -1,0 +1,74 @@
+package asteroids.model;
+
+import java.util.List;
+
+import asteroids.part3.programs.SourceLocation;
+import asteroids.model.Expressions.*;
+
+public class Function{
+	
+	public Function(String name, Statement statement, SourceLocation sourceLocation){
+		this.setName(name);
+		this.setBody(statement);
+		this.setSourceLocation(sourceLocation);
+	}
+
+	public Program getProgram(){
+		return this.program;
+	}
+	
+	public void setProgram(Program program) {
+		this.program = program;
+	}
+
+	private Program program;
+	
+	public Statement getBody() {
+		return this.body;
+	}
+
+	public void setBody(Statement body) {
+		this.body = body;
+	}
+
+	private Statement body;
+
+	public SourceLocation getSourceLocation() {
+		return this.sourceLocation;
+	}
+
+	public void setSourceLocation(SourceLocation sourceLocation) {
+		this.sourceLocation = sourceLocation;
+	}
+
+	private SourceLocation sourceLocation;
+	
+	public String getName(){
+		return this.name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	private String name;
+	
+	public void evaluate(List<Expression> actualArguments){
+		int index = 0;
+		while (index < this.actualArguments.size()){
+			Expression currentArgument = actualArguments.get(index);
+			currentArgument.getVal();
+			index += 1;
+		}	
+	}
+	
+	public List<Expression> getActualArguments() {
+		return actualArguments;
+	}
+
+	public void setActualArguments(List<Expression> actualArguments) {
+		this.actualArguments = actualArguments;
+	}
+
+	private List<Expression> actualArguments;
+}
