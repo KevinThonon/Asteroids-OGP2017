@@ -1,0 +1,33 @@
+package asteroids.model;
+
+import asteroids.part3.programs.SourceLocation;
+
+public abstract class Statement {
+	
+	private SourceLocation sourcelocation;
+	
+	public Statement(SourceLocation sourcelocation){
+		setSourceLocation(sourcelocation);
+	}
+	
+	private Program program;
+	
+	public Program getProgram(){
+		return this.program;
+	}
+	
+	public void setProgram(Program program){
+		this.program= program;
+	}
+
+	public SourceLocation getSourceLocation() {
+		return sourcelocation;
+	}
+	
+	public void setSourceLocation(SourceLocation sourcelocation) {
+		this.sourcelocation = sourcelocation;
+	}
+	
+	public abstract void execute();
+	
+}
