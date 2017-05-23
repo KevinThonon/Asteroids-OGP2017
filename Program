@@ -1,95 +1,64 @@
 package asteroids.model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import asteroids.model.Expressions.*;
-import asteroids.model.*;
 import asteroids.part3.programs.SourceLocation;
 
 public class Program {
-
-	private SourceLocation currentLocation = new SourceLocation(0,0);
+	
 	private List<Function> functions;
 	private Statement main;
-	private Set<Variable> variables = new HashSet<Variable>();
-	private List<Object> results = new ArrayList<Object>();
+	private Map<String,Expression> variables = new HashMap<String,Expression>();
 	private double timeLeftToExecute = 0;
 
 	public Program(List<Function> functions, Statement main){
-		this.functions = functions;
-		this.main = main;
-		main.setProgram(this);
+		setListFunctions(functions);
+		setMainStatement(main);
 		for (Function function: functions) 
 			function.setProgram(this);
-		System.out.println(main.toString());
+		main.setProgram(this);
 	}
 	
-	public List<Object> execute(double dt){
-		timeLeftToExecute += dt;
-		main.execute();
-		if (!main.failedToAdvanceTime()) {
-			currentLocation = new SourceLocation(0, 0);
-			List<Object> resultsToThrow = results;
-			results = null;
-			return resultsToThrow;
-		}
-		return null;
+	public List<Function> getListFuntions(){
+		return this.functions;
 	}
 	
-	private Ship ship;
-	
-	public Ship getShip(){
-		return ship;
-	}
-
-	public void setShip(Ship ship){
-		if(!(ship.getProgram() == this)) throw new IllegalArgumentException();
-		this.ship = ship;
-	}
-
-	public List<Object> getResults(){
-		return results;
-	}
-
-	public Object getVariable(String variableName) throws NoSuchElementException{
-		return getVariables().stream().filter(variable -> variable.getName().equals(variableName)).findFirst().get().getValue();
+	public void setListFunctions(List<Function> functions){
+		this.functions = functions;
 	}
 	
-	public void addVariable(Variable variable){
-		variables.add(variable);
+	public Statement getMainStatement(){
+		return this.main;
 	}
-
-	public void advanceTimer(){
-		timeLeftToExecute = timeLeftToExecute - 0.2;
+	
+	public void setMainStatement(Statement main){
+		this.main = main;
 	}
-
+	
 	public double getTimeLeftToExecute(){
-		return timeLeftToExecute;
+		return this.timeLeftToExecute;
 	}
-
-	public void addResult(Object result){
-		results.add(result);
+	
+	public void setTimeLeftToExecute(double timeLeftToExecute){
+		this.timeLeftToExecute = timeLeftToExecute;
 	}
-
-	public SourceLocation getCurrentLocation(){
-		return currentLocation;
+	
+	public Map<String,Expression> getMapsOfVariables(){
+		return this.variables;
 	}
-
-	public void setCurrentLocation(SourceLocation currentLocation){
-		this.currentLocation = currentLocation;
+	
+	public void addVariable(String variableName,Expression variable){
+		this.variables.put(variableName, variable);
 	}
-
-	public Set<Variable> getVariables(){
-		return new HashSet<Variable>(variables);
+	
+	public void execute(double dt){
+		double time= this.getTimeLeftToExecute() + dt;
+		this.setTimeLeftToExecute(time);
+		while(this.getTimeLeftToExecute() >= 0.2){
+			this.getMainStatement().execute();
+		}
 	}
-
-	public Function getFunction(String functionName) throws NoSuchElementException{
-		return this.functions.stream().filter(function -> function.getName().equals(functionName)).reduce((first, second) -> second).get();
-	}
-
 }
