@@ -1,0 +1,18 @@
+package asteroids.model.Expressions.Exceptions;
+
+import asteroids.model.Expressions.Expression;
+
+public class IllegalOperandExcep extends RuntimeException{
+	private static final long serialVersionUID = 1L;
+	
+	public IllegalOperandExcep (Expression operand){
+		this.operand = operand;
+	}
+	
+	public Expression getOperand() {
+		return operand;
+	}
+
+	private final Expression operand;
+
+}
