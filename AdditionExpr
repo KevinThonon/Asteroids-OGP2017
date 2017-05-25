@@ -1,0 +1,34 @@
+package asteroids.model.Expressions;
+
+import asteroids.part3.programs.SourceLocation;
+
+public class AdditionExpr extends BinaryDoubleExpr{
+
+	public AdditionExpr(Expression left, Expression right, SourceLocation sourceLocation){
+		super(left, right, sourceLocation);
+	}
+
+	@Override
+	public DoubleT getVal(){
+		double result = operate((double) this.getLeftOperand().getVal().getValue(), 
+				(double) this.getRightOperand().getVal().getValue(), addition);
+		DoubleT d = new DoubleT(result);
+		return (DoubleT) d;
+	}
+	
+	MathOperation addition = (double a, double b) -> {return a + b;};
+		
+	interface MathOperation {
+		double operation(double d, double e);
+	}
+		
+	private double operate(double d, double e, MathOperation mathOperation){
+		return mathOperation.operation(d, e);
+	}
+	
+	@Override
+	public String getSymbol(){
+		return "+";
+	}
+
+}
