@@ -15,13 +15,11 @@ public class World {
 	 * 		  The width of this world.
 	 * @param height
 	 * 		  The height of this world.
-	 * @post  this.width = width
-	 * @post  this.height = height
+	 * @post  this.setWorld(width,height)
 	 * 
 	 */
 	public World(double width, double height){
-		this.width = width;
-		this.height = height;
+		this.setWorld(width, height);
 	}
 	/**
 	 * Returns the width of this world.
@@ -44,205 +42,79 @@ public class World {
 	 * @return new double[] {this.width , this.height}
 	 */
 	public double[] getWorldSize(){
-		return new double[] {getWidth(),getHeigth()};
+		return new double[] {this.getWidth(),this.getHeigth()};
 	}
-	
 	/**
-	 * Returns a set of all the ships in this world. 
-	 * @return this.ships
+	 * Sets the size of the world.
+	 * @param width
+	 * @param height
+	 * @post if ((width==Double.NaN) || (width>Double.MAX_VALUE))
+	 * 		this.width=Double.MAX_VALUE;
+	 * @post  else if (width<0) this.width=0;
+	 * @post else this.width=0;
+	 * @post if ((height==Double.NaN) || (height>Double.MAX_VALUE))
+	 * 		this.height=Double.MAX_VALUE;
+	 * @post else if (height<0) this.height=0;
+	 * @post else this.height=height;
+	 * 
 	 */
-	public Set<Ship> getShips(){
-		return this.ships;
+	public void setWorld(double width, double height) {
+		if ((width==Double.NaN) || (width>Double.MAX_VALUE))
+			this.width=Double.MAX_VALUE;
+		else if (width<0)
+			this.width=0;
+		else
+			this.width=width;
+		if ((height==Double.NaN) || (height>Double.MAX_VALUE))
+			this.height=Double.MAX_VALUE;
+		else if (height<0)
+			this.height=0;
+		else
+			this.height=height;
+		
 	}
-	
-	private Set<Ship> ships = new HashSet<Ship>();
-	
-	/**
-	 * Returns a set of all the bullets in this world.
-	 * @return this.bullets
-	 */
-	public Set<Bullet> getBullets(){
-		return this.bullets;
-	}
-	
-	private Set<Bullet> bullets = new HashSet<Bullet>();
-	
-	/**
-	 * Returns a set of all the minor planets in this world.
-	 * @return this.minorPlanets
-	 */
-	public Set<MinorPlanet> getMinorPlanets(){
-		return this.minorPlanets;
-	}
-	
-	private Set<MinorPlanet> minorPlanets = new HashSet<MinorPlanet>();
+	private Set<Entity> entitys = new HashSet<Entity>();
 	
 	/**
 	 * Returns a set of all the entities in this world.
 	 * @return this.entities
 	 */
-    public Set<Entity> getEntitys(){
-    	Set<Entity> entitys = new HashSet<Entity>();
-		entitys.addAll(getBullets());
-		entitys.addAll(getShips());
-		entitys.addAll(getMinorPlanets());
-		return entitys;
+	public Set<Entity> getEntitys(){
+		return this.entitys;
 	}
+	
     
 	/**
-	 * Check whether this world can have ship1 as ship.
-	 * @param ship1
-	 * 		A ship.
-	 * @return if (ship1.overlap((Ship)ship1,(Ship)ship2)) return false
-	 * @return if (ship1.overlap((Ship)ship1,(Bullet)bullet)) return false
-	 * @return if (ship1.getWorld() == this || ship1.getWorld() == null ) return true
+	 * Check whether this world can have as entity an certain entity.
+	 * @param entity1
+	 * 		A entity.
+	 * @return if (entity1.overlap(entity1,entity2)) return false
+	 * @return if (entity1.getWorld() == this || entity1.getWorld() == null ) return true
 	 * @return else return false
 	 */
-	private boolean canHaveAsShip(Ship ship1) {
-		for (Ship ship2: getShips()){
-			if (ship1.overlap(ship1, ship2))
+	public boolean canHaveAsEntity(Entity entity1) {
+		for (Entity entity2: this.getEntitys()){
+			if (entity1.significantOverlap(entity1, entity2))
 				return false;}
-		for (Bullet bullet: getBullets()){
-			if (ship1.overlap(ship1,bullet))
-			    return false;}
-		for (MinorPlanet minorPlanet: getMinorPlanets()) {
-			if (ship1.overlap(ship1,minorPlanet))
-				return false;}
-		if (ship1.getWorld() == this || ship1.getWorld() == null ) 
+		if (!(entity1.apparentlyWithinBoundaries(this, entity1)))
+			return false;
+		if (entity1.getWorld() == this || entity1.getWorld() == null ) 
 			return true;
 		return false;
 	}
 	
 	/**
-	 * It adds a ship to this world.
-	 * @param ship
+	 * It adds a entity to this world.
+	 * @param entity
 	 * @throws IllegalArgumentException
-	 * 		if (!canHaveAsShip(ship))
-	 * @post this.ships.add(ship)
-	 * @post ship.setWorld(this)
+	 * 		if (!canHaveAsEntity(entity))
+	 * @post this.entitys.add(entity)
+	 * @post entity.setWorld(this)
 	 */
-	public void addShip(Ship ship) {
-		if (!canHaveAsShip(ship)) throw new IllegalArgumentException("The world can't have this ship.");
-		this.ships.add(ship);
-		ship.setWorld(this);
-	}
-	
-	/**
-	 * It removes a ship from this world.
-	 * @param ship
-	 * @throws 
-	 * 		if (ship.getWorld() != this)
-	 * @post this.ships.remove(ship)
-	 * @post ship.setWorld(null);
-	 */
-	public void removeShip(Ship ship) {
-		if (ship.getWorld() != this) throw new IllegalArgumentException("This ship isn't in this world.");
-		this.ships.remove(ship);
-		ship.setWorld(null);
-	}
-	
-	/**
-	 * Check whether this world can have bullet1 as Bullet.
-	 * @param bullet1
-	 * 		A bullet.
-	 * @return if (bullet1.overlap(bullet1,bullet2)) return false
-	 * @return if (bullet1.overlap(bullet1,ship)) return false
-	 * @return if (bullet1.getWorld() == this || bullet1.getWorld() == null ) return true
-	 * @return else false
-	 */
-	private boolean canHaveAsBullet(Bullet bullet1) {
-		for (Bullet bullet2: getBullets()) {
-			if (bullet1.overlap(bullet1,bullet2))
-				return false;}
-		for (Ship ship: getShips()) {
-			if (bullet1.overlap(bullet1,ship))
-				return false;}
-		for (MinorPlanet minorPlanet: getMinorPlanets()) {
-			if (bullet1.overlap(bullet1,minorPlanet))
-				return false;}
-		if (bullet1.getWorld() == this || bullet1.getWorld() == null )
-			return true;
-		return false;
-	}
-	
-	/**
-	 * It adds a bullet to this world.
-	 * @param bullet
-	 * @throws IllegalArgumentException
-	 * 		if (!canHaveAsBullet(bullet))
-	 * @post this.bullets.add(bullet)
-	 * @post bullet.setWorld(this)
-	 */
-	public void addBullet(Bullet bullet) {
-		if (!canHaveAsBullet(bullet)) throw new IllegalArgumentException("The world can't have this bullet.");
-		this.bullets.add(bullet);
-		bullet.setWorld(this);
-	}
-	
-	/**
-	 * It removes a bullet from this world.
-	 * @param bullet
-	 * @throws IllegalArgumentException
-	 * 		if (bullet.getWorld() != this)
-	 * @post this.bullets.remove(bullet)
-	 * @post bullet.setWorld(null);
-	 */
-	public void removeBullet(Bullet bullet) {
-		if (bullet.getWorld() != this) throw new IllegalArgumentException("This bullet isn't in this world");
-		this.bullets.remove(bullet);
-		bullet.setWorld(null);
-	}
-	
-	/**
-	 * Check whether this world can have minorPlanet1 as minor planet.
-	 * @param minorPlanet1
-	 * 		A minor planet.
-	 * @return if (minorPlanet1.overlap((MinorPlanet)minorPlanet1,(MinorPlanet)minorPlanet2)) return false
-	 * @return if (minorPlanet1.overlap((MinorPlanet)minorPlanet1,(Bullet)bullet)) return false
-	 * @return if (minorPlanet1.getWorld() == this || minorPlanet1.getWorld() == null ) return true
-	 * @return else return false
-	 */
-	private boolean canHaveAsMinorPlanet(MinorPlanet minorPlanet1) {
-		for (MinorPlanet minorPlanet2: getMinorPlanets()){
-			if (minorPlanet1.overlap(minorPlanet1, minorPlanet2))
-				return false;}
-		for (Bullet bullet: getBullets()){
-			if (minorPlanet1.overlap(minorPlanet1,bullet))
-			    return false;}
-		for (Ship ship: getShips()){
-			if (minorPlanet1.overlap(minorPlanet1,ship))
-			    return false;}
-		if (minorPlanet1.getWorld() == this || minorPlanet1.getWorld() == null ) 
-			return true;
-		return false;
-	}
-	
-	/**
-	 * It adds a minor planet to this world.
-	 * @param minorPlanet
-	 * @throws IllegalArgumentException
-	 * 		if (!canHaveAsMinorPlanet(minorPlanet))
-	 * @post this.minorPlanets.add(minorPlanet)
-	 * @post minorPlanet.setWorld(this)
-	 */
-	public void addMinorPlanet(MinorPlanet minorPlanet) {
-		if (!canHaveAsMinorPlanet(minorPlanet)) throw new IllegalArgumentException("The world can't have this minor planet.");
-		this.minorPlanets.add(minorPlanet);
-		minorPlanet.setWorld(this);
-	}
-	
-	/**
-	 * It removes a minor planet from this world.
-	 * @param minorPlanet
-	 * @throws IllegalArgumentException
-	 * 		if (minorPlanet.getWorld() != this)
-	 * @post this.minorPlanets.remove(minorEntity)
-	 * @post minorPlanet.setWorld(null);
-	 */
-	public void removeMinorPlanet(MinorPlanet minorPlanet) {
-		if (minorPlanet.getWorld() != this) throw new IllegalArgumentException("This minor planet isn't in this world");
-		this.minorPlanets.remove(minorPlanet);
-		minorPlanets.setWorld(null);
+	public void addEntity(Entity entity) {
+		if (!canHaveAsEntity(entity)) throw new IllegalArgumentException("The world can't have this entity.");
+		this.entitys.add(entity);
+		entity.setWorld(this);
 	}
 	
 	/**
@@ -250,17 +122,19 @@ public class World {
 	 * @param entity
 	 * @throws IllegalArgumentException
 	 * 		if (entity.getWorld() != this)
-	 * @post this.entity.remove(entity)
+	 * @post if (entity instanceof Ship)
+	 *	    this.ships.remove((Ship)entity);
+	 * @post else if (entity instanceof Bullet)
+	 *	    this.bullets.remove((Bullet)entity);
+	 * @post else if (entity instanceof Planetoid)
+	 * 		this.minorPlanets.remove((Planetoid)entity);
+	 * @post else if (entity instanceof Asteroid)
+	 *  	this.asteroids.remove((Asteroid)entity);
 	 * @post entity.setWorld(null);
 	 */
 	public void removeEntity(Entity entity) {
 		if (entity.getWorld() != this) throw new IllegalArgumentException();
-		if (entity instanceof Ship)
-			this.ships.remove(entity);
-		if (entity instanceof Bullet)
-			this.bullets.remove(entity);
-		if (entity instanceof MinorPlanet)
-			this.minorPlanets.remove(entity);
+		this.entitys.remove(entity);
 		entity.setWorld(null);
 	}
 	
@@ -288,14 +162,14 @@ public class World {
     	return false;
     }
     
-    /**
-	 * Checks whether the entity is a MinorPlanet.
-	 * @param entity
-	 * @return if (entity instanceof MinorPlanet) return true
-	 * @return else return false
-	 */
-    public boolean isMinorPlanetClass(Entity entity){
-    	if (entity instanceof MinorPlanet)
+    public boolean isAsteroidClass(Entity entity){
+    	if (entity instanceof Asteroid)
+    		return true;
+    	return false;
+    }
+    
+    public boolean isPlanetoidClass(Entity entity){
+    	if (entity instanceof Planetoid)
     		return true;
     	return false;
     }
@@ -335,24 +209,29 @@ public class World {
 	 */
     public void solveCollisionInWorld(Collision collision){
 		if(collision.getEntity2()==null){
-			if (isShipClass(collision.getEntity1())){
-				collision.withShipBoundry();
-			}
-			else{
-				collision.withBulletBoundry();
-			}
+			collision.withEntityBoundry();
 		}
 		else{
-			if (isShipClass(collision.getEntity1()) || isShipClass(collision.getEntity2())){
-				if (isShipClass(collision.getEntity2()) && isShipClass(collision.getEntity1())){
-					collision.betweenShipShip();
-				}
-				else{
-					collision.betweenShipBullet();
-				}
+			if (isBulletClass(collision.getEntity1()) || isBulletClass(collision.getEntity2())){
+				collision.betweenBulletEntity();
 			}
 			else{
-				collision.betweenBulletBullet();
+				if (isShipClass(collision.getEntity1()) || isShipClass(collision.getEntity2())){
+					if (isShipClass(collision.getEntity1()) && isShipClass(collision.getEntity2())){
+						collision.betweenShipShip();
+					}
+					else{
+						if (isPlanetoidClass(collision.getEntity1()) || isPlanetoidClass(collision.getEntity2())){
+							collision.betweenPlanetoidShip();
+						}
+						else{
+							collision.betweenAsteroidShip();
+						}
+					}
+				}
+				else{
+					collision.betweenMinorPlanetMinorPlanet();
+				}
 			}
 		}
 	}
@@ -415,21 +294,12 @@ public class World {
 	 * 		A certain number of seconds.
 	 */
 	public void advance(double time){
-		for (Ship ship: this.getShips()){
-			ship.move(time);
-			for (Bullet bullet: ship.getBullets()){
-				bullet.move(time);
-			}
-			
-			for (Bullet bullet: ship.getBullets()){
-				bullet.setSpeed(ship.getSpeed());
-			}
-		}
-		for (Bullet bullet: this.getBullets()){
-			bullet.move(time);
-		}
-		for (MinorPlanet minorPlanet: this.getMinorPlanets()){
-			minorPlanet.move(time);
+		Set<Bullet> allBulletsWithASource = new HashSet<Bullet>();
+		for (Entity entity: this.getEntitys()){
+			if (entity instanceof Bullet && ((Bullet) entity).getShip()!=null)
+				allBulletsWithASource.add((Bullet)entity);
+			else
+				entity.move(time);
 		}
 	}
 	
@@ -444,9 +314,7 @@ public class World {
 		for (Entity entity: entities){
 			entity.setWorld(null);
 			}
-		this.bullets.clear();
-		this.ships.clear();
-		this.minorPlanets.clear();
+		this.entitys.clear();
 	}
 	
 	/**
@@ -455,7 +323,7 @@ public class World {
 	 * @return else false;
 	 */
 	public boolean isDestoyedWorld(){
-		if (bullets.size()==0 && ships.size()==0 &&minorPlanets.size()==0)
+		if (this.getEntitys().size()==0)
 			return true;
 		return false;
 	}
