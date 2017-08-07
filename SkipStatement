@@ -1,0 +1,16 @@
+package asteroids.model.statements;
+
+import asteroids.part3.programs.SourceLocation;
+
+public class SkipStatement extends Statement {
+
+	public SkipStatement(SourceLocation sourcelocation) {
+		super(sourcelocation);
+	}
+
+	@Override
+	public void execute() {
+		return;		
+	}
+
+}
