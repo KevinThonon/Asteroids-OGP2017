@@ -1,0 +1,31 @@
+package asteroids.model.statements;
+
+import asteroids.model.Expressions.Expression;
+import asteroids.part3.programs.SourceLocation;
+
+public class AssertStatement extends Statement{
+
+	public AssertStatement(SourceLocation sourcelocation, Expression assertExpression) {
+		super(sourcelocation);
+		setAssertExpression(assertExpression);		
+	}
+	
+	private Expression assertExpression;
+	private void setAssertExpression(Expression assertExpression) {
+		this.assertExpression = assertExpression;
+		this.assertExpression.setProgram(getProgram());
+	}
+	
+	private Expression getAssertExpression() {
+		return this.assertExpression;
+	}
+
+	@Override
+	public void execute() {
+		if (!this.getProgram().assertOn())
+			return;
+		else
+			assert (boolean) (this.getAssertExpression().getVal().getValue());
+			return;
+	}
+}
