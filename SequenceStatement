@@ -1,0 +1,34 @@
+package asteroids.model.statements;
+
+import java.util.List;
+
+import asteroids.part3.programs.SourceLocation;
+
+public class SequenceStatement extends Statement{
+
+	public SequenceStatement(SourceLocation sourcelocation,List<Statement> sequenceStatements) {
+		super(sourcelocation);
+		setSequenceStatements(sequenceStatements);
+	}
+
+    private List<Statement> sequenceStatements;
+	
+	public List<Statement> getSequenceStatements() {
+		return sequenceStatements;
+	}
+
+	public void setSequenceStatements(List<Statement> sequenceStatements) {
+		this.sequenceStatements = sequenceStatements;
+		for(Statement statement: sequenceStatements)
+			statement.setProgram(this.getProgram());
+	}
+	
+	
+	@Override
+	public void execute(){
+		for (Statement statement: this.getSequenceStatements()){
+			statement.execute();}
+	}
+
+
+}
