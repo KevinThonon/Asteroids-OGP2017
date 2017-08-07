@@ -1,0 +1,18 @@
+package asteroids.model.statements;
+
+import asteroids.part3.programs.SourceLocation;
+
+public class BreakStatement extends Statement {
+
+	public BreakStatement(SourceLocation sourcelocation) {
+		super(sourcelocation);
+	}
+
+	@Override
+	public void execute() {
+		if(!(isWhileStatementActive())) 
+			throw new IllegalArgumentException("Break statement isn't used in a while statement");
+		this.getProgram().setBreakEnabled(true);
+	}
+
+}
