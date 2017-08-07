@@ -1,0 +1,52 @@
+package asteroids.model.statements;
+
+import asteroids.model.Expressions.BooleanExpr;
+import asteroids.model.Expressions.Expression;
+import asteroids.part3.programs.SourceLocation;
+
+public class ConditionStatement extends Statement {
+
+	public ConditionStatement(SourceLocation sourcelocation,Expression condition,Expression thenbody,Expression elsebody) {
+		super(sourcelocation);
+		setCondition(condition);
+		setThenbody(thenbody);
+		setElsebody(elsebody);
+	}
+	
+	private Expression condition;
+	private Expression thenbody;
+	private Expression elsebody;
+	private Expression result;
+	
+	@Override
+	public void execute() {
+		if (!(condition instanceof BooleanExpr)) throw new IllegalArgumentException("Condition isn't a boolean expression.");
+		if ((boolean)condition.getVal().getValue()){
+			result = this.getThenbody();}
+		else{
+			result = this.getElsebody();
+		this.getProgram().AddObjectsPrinted(result.getVal().getValue());}
+	}
+	
+	
+	public Expression getCondition() {
+		return condition;
+	}
+	public void setCondition(Expression condition) {
+		this.condition = condition;
+		this.condition.setProgram(this.getProgram());
+	}
+	public Expression getThenbody() {
+		return thenbody;
+	}
+	public void setThenbody(Expression thenbody) {
+		this.thenbody = thenbody;
+	}
+	public Expression getElsebody() {
+		return elsebody;
+	}
+	public void setElsebody(Expression elsebody) {
+		this.elsebody = elsebody;
+	}
+
+}
