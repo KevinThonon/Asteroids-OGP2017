@@ -1,5 +1,6 @@
-package asteroids.model;
+package asteroids.model.statements;
 
+import asteroids.model.Program;
 import asteroids.part3.programs.SourceLocation;
 
 public abstract class Statement {
@@ -28,6 +29,15 @@ public abstract class Statement {
 		this.sourcelocation = sourcelocation;
 	}
 	
+	private boolean iswhilestatementactive;
+ 	public boolean isWhileStatementActive(){
+		return iswhilestatementactive;
+	}
+ 	
+ 	public void setWhileStatementActiveOrNot(boolean a){
+ 		this.iswhilestatementactive = a;
+ 	}
+ 	
 	public abstract void execute();
 	
 }
