@@ -1,11 +1,13 @@
 package asteroids.model;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import asteroids.model.Expressions.*;
-import asteroids.part3.programs.SourceLocation;
+import asteroids.model.statements.Statement;
+
 
 public class Program {
 	
@@ -13,7 +15,8 @@ public class Program {
 	private Statement main;
 	private Map<String,Expression> variables = new HashMap<String,Expression>();
 	private double timeLeftToExecute = 0;
-
+	
+	
 	public Program(List<Function> functions, Statement main){
 		setListFunctions(functions);
 		setMainStatement(main);
@@ -38,6 +41,8 @@ public class Program {
 		this.main = main;
 	}
 	
+	
+	
 	public double getTimeLeftToExecute(){
 		return this.timeLeftToExecute;
 	}
@@ -54,11 +59,54 @@ public class Program {
 		this.variables.put(variableName, variable);
 	}
 	
-	public void execute(double dt){
+	private List<Object> objectsPrinted = new ArrayList<Object>();
+	
+	public List<Object> getObjectsPrinted(){
+		return this.objectsPrinted;
+	}
+	
+	public void AddObjectsPrinted(Object object){
+		this.objectsPrinted.add(object);
+	}
+	
+	private boolean breakEnabled = false;
+	public boolean isBreakEnabled() {
+		return breakEnabled;
+	}
+
+	public void setBreakEnabled(boolean breakEnabled) {
+		this.breakEnabled = breakEnabled;
+	}
+	
+ 	private boolean assertOn;
+ 	public boolean assertOn() {
+ 		return assertOn;
+ 	}
+ 	
+ 	public void assertEnabled(boolean assertEnable) {
+ 		this.assertOn = assertEnable;
+ 	}
+	
+	public List<Object> execute(Ship ship, double dt){
+		this.setShip(ship);
+		this.getShip().setProgram(this);
 		double time= this.getTimeLeftToExecute() + dt;
 		this.setTimeLeftToExecute(time);
 		while(this.getTimeLeftToExecute() >= 0.2){
 			this.getMainStatement().execute();
 		}
+		return null;
 	}
+	
+	private Ship ship;
+	public Ship getShip() {
+		return ship;
+	}
+
+	public void setShip(Ship ship) {
+		this.ship = ship;
+	}
+
+	
+	
 }
