@@ -1,0 +1,96 @@
+package asteroids.model;
+
+public abstract class BlackHole extends Entity{
+	public BlackHole(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius) throws IllegalArgumentException {
+		super(xPosition,yPosition,xSpeed,ySpeed, radius);
+		this.setRadius(radius);
+	}
+	
+	private double radius;
+	
+	public double getRadius(){
+		return this.radius;
+	}
+	
+	public void setRadius(double radius) throws IllegalArgumentException{
+		if ((radius < 100) || (radius > Double.POSITIVE_INFINITY)) 
+			throw new IllegalArgumentException();
+		this.radius = radius;
+	}
+	
+	public boolean isValidBlackHole() throws IllegalArgumentException{
+		if (((this.getPosition()[0]) < Double.NEGATIVE_INFINITY) || ((this.getPosition()[0]) > Double.POSITIVE_INFINITY))
+			throw new IllegalArgumentException();
+		if (((this.getPosition()[1]) < Double.NEGATIVE_INFINITY) || ((this.getPosition()[1]) > Double.POSITIVE_INFINITY))
+			throw new IllegalArgumentException();
+		if (((this.getRadius()) < 100) || ((this.getRadius()) > Double.POSITIVE_INFINITY))
+			throw new IllegalArgumentException();
+		else
+			return true;
+	}
+	
+	public boolean canBeCreated() {
+		if (!this.withinBoundaries())
+			return false;
+		if (!this.isValidEntity(this))
+			return false;
+		boolean isCreatable = true;
+		for (Entity entity: this.getWorld().getEntitys()){
+			if (this.overlap(entity, this) && (entity != this) && !(entity instanceof Bullet))
+				return false;
+			else 
+				return isCreatable = true;
+		}
+		return isCreatable;
+	}
+	
+	private boolean withinBoundaries() {
+		if (((this.getPosition()[0] - this.getRadius()) < 0)  || ((this.getPosition()[1] - this.getRadius()) < 0))
+			return false;
+		if (((this.getPosition()[0] + this.getRadius()) > this.getWorld().width)  ||
+				((this.getPosition()[1] + this.getRadius()) > this.getWorld().height))
+			return false;
+		else
+			return true;
+	}
+
+	@Override
+	public void setPosition(double[] position) throws IllegalArgumentException {
+		if (!isValidPosition(position)) throw new IllegalArgumentException("Position isn't valid.");
+		if (!this.canBeCreated()) throw new IllegalArgumentException();
+		if (!this.isValidBlackHole()) throw new IllegalArgumentException();
+		else
+			this.position = position;
+	}
+	
+	@Override
+	public void setSpeed (double[] speed) {
+		if (speed[0] != 0)
+			speed[0] = 0;
+		if (speed[1] != 0)
+			speed[1] = 0;
+	}
+	
+	@Override
+	public void collideWithEntity(Entity entity) {
+		if (entity instanceof Ship || entity instanceof MinorPlanet){
+			entity.terminate();
+		}
+		
+    	if (entity instanceof BlackHole) {
+    		double[] newPosition = new double[] {this.position[0] + this.radius * Math.cos(Math.atan((entity.position[1]
+    				- this.position[1]) / (entity.position[0] - this.position[0]))), 
+    				this.position[1] + this.radius * Math.sin(Math.atan((entity.position[1]
+    	    				- this.position[1]) / (entity.position[0] - this.position[0])))};
+    		this.setPosition(newPosition);
+    		double[] speed = new double[] {0,0};
+    		this.setSpeed(speed);
+    		this.setRadius(this.radius + entity.getRadius());
+    		entity.terminate();
+    	}
+    	
+    	else
+    		return;
+	}
+
+}
