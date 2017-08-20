@@ -8,17 +8,48 @@ public class Asteroid extends MinorPlanet {
 	
 	final private static double densityAsteroid = 2.65E12;
 	
-	public double getDensity(){
-		return densityAsteroid;
+	
+	/**
+	 * Returns a boolean type. 
+	 * @param duration
+	 * 			The given duration.
+	 * @return It returns false if the duration is not NaN.
+	 * @return It returns true if the duration is valid.
+	 */
+	public boolean isValidDuration(double duration){
+		if (duration == Double.NaN)
+			return false;
+		return duration >= 0;
 	}
 	
+	/**
+	 * Method will move the minorplanet for the given duration
+	 * @param duration
+	 * @throws IllegalArgumentException
+	 * 			if (!isValidDuration(duration))
+	 * @post setPostion({posX + velX*duration, posY + velY*duration})
+	 */
 	public void move(double duration){
+		if (!(isValidDuration(duration))) throw new IllegalArgumentException("The duration isn't valid");
 		setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration});
 	}
 	
-	
+	/**
+	 * Returns the mass of the minorplanet
+	 * @see implementation
+	 */
 	public double getMass(){
-		double mass = (4/3)*Math.PI*Math.pow(super.getRadius(),3)*this.getDensity();
+		double mass = (4.0/3.0)*Math.PI*Math.pow(super.getRadius(),3)*densityAsteroid;
 		return mass;
+	}
+	
+	/**
+	 * Resolves a collision between an Asteroid an entity.
+	 * If the entity is a MinorPlanet, the class MinorPlanet will deal with it, else the entity is destroyed.
+	 */
+	@Override
+	public void collideWithEntity(Entity entity){
+		if (entity instanceof MinorPlanet) super.collideWithEntity(entity);
+		else entity.terminate();
 	}
 }
