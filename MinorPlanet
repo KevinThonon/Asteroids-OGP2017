@@ -1,29 +1,34 @@
-/**
- * 
- */
 package asteroids.model;
 
 /**
- * @author jefjonkers
+ * @invar A minorplanet must have a valid radius, radius > 5 | isValidRadius(radius)
+ * @author jefjonkers 
  *
  */
-public class MinorPlanet extends Entity {
+public abstract class MinorPlanet extends Entity {
+	/**
+	 * Create a minor planet with the given parameters
+	 * @param xPosition
+	 * @param yPosition
+	 * @param xSpeed
+	 * @param ySpeed
+	 * @param radius
+	 * @throws IllegalArgumentException
+	 */
 	public MinorPlanet(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius)
 			throws IllegalArgumentException {
-		super(xPosition, yPosition, xSpeed, ySpeed);
-		this.setRadius(radius);
+		super(xPosition, yPosition, xSpeed, ySpeed, radius);
 	}
 	
-	private double radius;
-	
-	public double getRadius(){
-		return radius;
+	/**
+	 * It returns the minimum radius of the minorplanet.
+	 * @return the radius of the minorplanet.
+	 */
+	@Override
+	public double getMinRadius(){
+		return 5;
 	}
 	
-	protected void setRadius(double radius) throws IllegalArgumentException{
-		if ((radius < 5) || (radius >= Double.POSITIVE_INFINITY)) 
-			throw new IllegalArgumentException("radius is smaller than five or (bigger or the same as Positive infinity");
-		this.radius = radius;
-	}
+	public abstract void move(double duration);
 	
 }
