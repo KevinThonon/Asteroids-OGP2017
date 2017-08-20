@@ -1,43 +1,109 @@
 package asteroids.model;
 
+import be.kuleuven.cs.som.annotate.Basic;
+
 public class Planetoid extends MinorPlanet {
-	
+	/**
+	 * Create a Planetoid, this is a specific type of minor planet with given parameters
+	 * @param xPosition
+	 * @param yPosition
+	 * @param xSpeed
+	 * @param ySpeed
+	 * @param radius
+	 * @param totalTravelledDistance
+	 * 		The total distance travelled by a Planetoid
+	 * @throws IllegalArgumentException
+	 */
 	public Planetoid(double xPosition, double yPosition, double xSpeed, double ySpeed, 
-			double radius)
+			double radius,double totalTravelledDistance)
 			throws IllegalArgumentException {
 		super(xPosition, yPosition, xSpeed, ySpeed, radius);
+		this.setTotalTravelledDistance(totalTravelledDistance);
+		if (totalTravelledDistance > 0){
+			if ((radius - totalTravelledDistance*0.000001) >= 5)
+				super.setRadius(radius - totalTravelledDistance*0.000001);
+			else this.terminate();
+		}
 	}
 	
-	private double totalTravelDistance = 0;
 	
+	
+	/**
+	 * Returns a boolean type. 
+	 * @param duration
+	 * 			The given duration.
+	 * @return It return if the duration is not NaN.
+	 * @return It return if the duration is valid.
+	 */
+	public boolean isValidDuration(double duration){
+		if (duration == Double.NaN)
+			return false;
+		return duration >= 0;
+	}
+	
+	private double totalTravelledDistance;
+	
+	/**
+	 * Get the total distance travelled by the planetoid
+	 * @return double type
+	 */
+	@Basic
 	public double getTotalTravelledDistance(){
-		return this.totalTravelDistance;
+		return this.totalTravelledDistance;
 	}
 	
-	public void setTotalTravelledDistance(double totalTravelDistance){
-		this.totalTravelDistance = totalTravelDistance;
+	/**
+	 * Set the total travelled distance
+	 * @param distance
+	 */
+	private void setTotalTravelledDistance(double distance){
+		this.totalTravelledDistance = distance;
 	}
+	
+	/**
+	 * Method that moves the plantoid for the given duration
+	 * @param duration
+	 * @throws IllegalArgumentException
+	 * 			if (!isValidDuration)
+	 * @see implementation
+	 */
 	public void move(double duration) throws IllegalArgumentException{
 		if (!isValidDuration(duration)) throw new IllegalArgumentException();
-		
 		setPosition(new double[]  {this.getPosition()[0] + this.getSpeed()[0]*duration, this.getPosition()[1] + this.getSpeed()[1]*duration});
 		double distanceTravelled = duration*super.getTotalSpeed();
-		this.setTotalTravelledDistance(totalTravelDistance + distanceTravelled);
 		super.setRadius(super.getRadius() - distanceTravelled*0.000001);
+		this.setTotalTravelledDistance(this.getTotalTravelledDistance()+distanceTravelled);
 		if (super.getRadius() < 5)
 			super.terminate();
 	}
 	
-	final private static double densityPlanetoid = 0.917E12;
-	
-	public double getDensity(){
-		return densityPlanetoid;
-	}
-	
+	final private static double densityPlanetoid = 0.917*Math.pow(10, 12);
+
+	/**
+	 * Returns the mass of the planetoid
+	 * @see implementation
+	 */
 	public double getMass(){
-		double mass = (4/3)*Math.PI*Math.pow(super.getRadius(),3)*this.getDensity();
+		double mass = (4.0/3.0)*Math.PI*Math.pow(super.getRadius(),3)*densityPlanetoid;
 		return mass;
 	}
 	
+	/**
+	 * Resolves collision with another enity
+	 */
+	@Override
+	public void collideWithEntity(Entity entity){
+		if (entity instanceof MinorPlanet) super.collideWithEntity(entity);
+		else{
+			double[] position = {Math.random()*this.getWorld().getWidth(),Math.random()*this.getWorld().getHeigth()};
+			entity.setPosition(position);
+			for (Entity entity1: this.getWorld().getEntitys()){
+				if (entity1.significantOverlap(entity1, entity)){
+					entity.terminate();
+					break;
+				}
+			}
+		}
+	}
 	
 }
