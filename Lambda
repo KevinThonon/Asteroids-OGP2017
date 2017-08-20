@@ -1,0 +1,29 @@
+Deze code moet in Expression gezet worden:
+
+interface Operator {  
+		  double apply(double a, double b);
+		}  
+		
+		double calculate(double a, double b, Operator op) {  
+		  return op.apply(a,b);
+		}  
+		
+		Operator plus = (a,b) -> a+b; 
+		Operator multiply = (a,b) -> a*b;
+    
+    
+    En dan moet ge in AdditionExpr de functie getVal() aanpassen (in de vorige versie zou dit dit hebben gegeven):
+    
+  @Override
+	public DoubleT getVal(){
+		DoubleT d = new DoubleT(calculate((double) this.getLeftOperand().getVal().getValue(),(double) this.getRightOperand().getVal().getValue(), plus));
+		return (DoubleT) d;
+	}
+  
+  En in MultiplicationExpr wordt dit dit: 
+  
+  @Override
+	public DoubleT getVal(){
+		DoubleT d = new DoubleT(calculate((double) this.getLeftOperand().getVal().getValue(), (double) this.getRightOperand().getVal().getValue(), multiply));
+		return (DoubleT) d;
+	}
